@@ -88,9 +88,6 @@ namespace IdentityServer4.WsFederation
 
             if (result.SignInRequired)
             {
-                //var returnUrl = Url.Action("Index", "WsFederation", null, Request.Scheme, Request.Host.Value);
-                //returnUrl = returnUrl.AddQueryString(_request.Raw.ToQueryString());
-
                 var returnUrl = Url.Action("Index");
                 returnUrl = returnUrl.AddQueryString(Request.QueryString.Value);
                 var loginUrl = _options.UserInteraction.LoginUrl;

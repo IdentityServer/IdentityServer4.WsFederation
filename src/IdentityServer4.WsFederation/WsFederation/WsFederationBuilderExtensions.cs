@@ -1,9 +1,6 @@
-﻿using IdentityServer4.WsFederation;
+﻿using IdentityServer4.Services;
+using IdentityServer4.WsFederation;
 using IdentityServer4.WsFederation.Validation;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -13,6 +10,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             builder.Services.AddTransient<MetadataResponseGenerator>();
             builder.Services.AddTransient<SignInValidator>();
+            builder.Services.AddTransient<IReturnUrlParser, WsFederationReturnUrlParser>();
 
             return builder;
         }
