@@ -22,6 +22,7 @@ namespace IdentityServer4.WsFederation
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             app.UseDeveloperExceptionPage();
+            loggerFactory.AddConsole(LogLevel.Debug);
 
             app.UseIdentityServer();
 

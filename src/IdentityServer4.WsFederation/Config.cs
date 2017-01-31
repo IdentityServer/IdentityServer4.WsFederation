@@ -1,6 +1,7 @@
 ﻿using IdentityModel;
 using IdentityServer4.Models;
 using System.Collections.Generic;
+using static IdentityServer4.IdentityServerConstants;
 
 namespace IdentityServer4.WsFederation
 {
@@ -30,11 +31,12 @@ namespace IdentityServer4.WsFederation
             {
                 new Client
                 {
-                    ClientId = "client",
-                    ClientSecrets = { new Secret("secret".Sha256()) },
+                    ClientId = "urn:owinrp",
+                    ProtocolType = ProtocolTypes.WsFederation,
 
-                    AllowedGrantTypes = GrantTypes.ClientCredentials,
-                    AllowedScopes = { "api1" }
+                    RedirectUris = { "http://localhost/foo" },
+                    
+                    AllowedScopes = { "openid" }
                 }
             };
         }
