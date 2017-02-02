@@ -45,15 +45,7 @@ namespace IdentityServer4.WsFederation
             _resources = resources;
         }
 
-        private string IssuerUri
-        {
-            get
-            {
-                return _contextAccessor.HttpContext.GetIdentityServerIssuerUri();
-            }
-        }
-
-        public async Task<SignInResponseMessage> GenerateResponseAsync(SignInValidationResult validationResult)
+         public async Task<SignInResponseMessage> GenerateResponseAsync(SignInValidationResult validationResult)
         {
             //Logger.Info("Creating WS-Federation signin response");
 
@@ -64,33 +56,11 @@ namespace IdentityServer4.WsFederation
             var token = await CreateSecurityTokenAsync(validationResult, outgoingSubject);
 
             // return response
-            var rstr = new RequestSecurityTokenResponse
-            {
-                AppliesTo = new EndpointReference(validationResult.Client.ClientId),
-                Context = validationResult.SignInRequestMessage.Context,
-                ReplyTo = validationResult.ReplyUrl,
-                RequestedSecurityToken = new RequestedSecurityToken(token)
-            };
-
-            var serializer = new WSFederationSerializer(
-                new WSTrust13RequestSerializer(),
-                new WSTrust13ResponseSerializer());
-
-            var mgr = SecurityTokenHandlerCollectionManager.CreateEmptySecurityTokenHandlerCollectionManager();
-            mgr[SecurityTokenHandlerCollectionManager.Usage.Default] = CreateSupportedSecurityTokenHandler();
-
-            var responseMessage = new SignInResponseMessage(
-                new Uri(validationResult.ReplyUrl),
-                rstr,
-                serializer,
-                new WSTrustSerializationContext(mgr));
-
-            return responseMessage;
+            return CreateResponse(validationResult, token);
         }
 
         protected async Task<ClaimsIdentity> CreateSubjectAsync(SignInValidationResult validationResult)
         {
-            var profileClaims = new List<Claim>();
             var requestedClaimTypes = new List<string>();
 
             var resources = await _resources.FindEnabledIdentityResourcesByScopeAsync(validationResult.Client.AllowedScopes);
@@ -111,15 +81,14 @@ namespace IdentityServer4.WsFederation
             };
 
             await _profile.GetProfileDataAsync(ctx);
-            profileClaims = ctx.IssuedClaims.ToList();
+            
 
             // map outbound claims
             var nameid = new Claim(ClaimTypes.NameIdentifier, validationResult.User.GetSubjectId());
             nameid.Properties[ClaimProperties.SamlNameIdentifierFormat] = _wsfedOptions.DefaultSamlNameIdentifierFormat;
 
             var outboundClaims = new List<Claim> { nameid };
-            
-            foreach (var claim in profileClaims)
+            foreach (var claim in ctx.IssuedClaims)
             {
                 if (_wsfedOptions.DefaultClaimMapping.ContainsKey(claim.Type))
                 {
@@ -170,7 +139,7 @@ namespace IdentityServer4.WsFederation
                 ReplyToAddress = validationResult.Client.RedirectUris.First(),
                 SigningCredentials = new X509SigningCredentials(key.Certificate, _wsfedOptions.DefaultSignatureAlgorithm, _wsfedOptions.DefaultDigestAlgorithm),
                 Subject = outgoingSubject,
-                TokenIssuerName = IssuerUri,
+                TokenIssuerName = _contextAccessor.HttpContext.GetIdentityServerIssuerUri(),
                 TokenType = _wsfedOptions.DefaultTokenType
             };
 
@@ -180,6 +149,32 @@ namespace IdentityServer4.WsFederation
             //}
 
             return CreateSupportedSecurityTokenHandler().CreateToken(descriptor);
+        }
+
+        private SignInResponseMessage CreateResponse(SignInValidationResult validationResult, SecurityToken token)
+        {
+            var rstr = new RequestSecurityTokenResponse
+            {
+                AppliesTo = new EndpointReference(validationResult.Client.ClientId),
+                Context = validationResult.SignInRequestMessage.Context,
+                ReplyTo = validationResult.ReplyUrl,
+                RequestedSecurityToken = new RequestedSecurityToken(token)
+            };
+
+            var serializer = new WSFederationSerializer(
+                new WSTrust13RequestSerializer(),
+                new WSTrust13ResponseSerializer());
+
+            var mgr = SecurityTokenHandlerCollectionManager.CreateEmptySecurityTokenHandlerCollectionManager();
+            mgr[SecurityTokenHandlerCollectionManager.Usage.Default] = CreateSupportedSecurityTokenHandler();
+
+            var responseMessage = new SignInResponseMessage(
+                new Uri(validationResult.ReplyUrl),
+                rstr,
+                serializer,
+                new WSTrustSerializationContext(mgr));
+
+            return responseMessage;
         }
 
         private SecurityTokenHandlerCollection CreateSupportedSecurityTokenHandler()
