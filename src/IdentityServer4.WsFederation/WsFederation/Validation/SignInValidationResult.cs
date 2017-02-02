@@ -1,12 +1,14 @@
-﻿
+﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
+
+
 using IdentityServer4.Models;
-using System.ComponentModel;
+using IdentityServer4.WsFederation.Stores;
 using System.IdentityModel.Services;
 using System.Security.Claims;
 
 namespace IdentityServer4.WsFederation.Validation
 {
-    [EditorBrowsable(EditorBrowsableState.Never)]
     public class SignInValidationResult
     {
         public bool IsError => !string.IsNullOrWhiteSpace(Error);
@@ -19,8 +21,8 @@ namespace IdentityServer4.WsFederation.Validation
         public bool SignInRequired { get; set; }
 
         public Client Client { get; set; }
-        public string ReplyUrl { get; set; }
+        public RelyingParty RelyingParty { get; set; }
 
-        
+        public string ReplyUrl { get; set; } 
     }
 }

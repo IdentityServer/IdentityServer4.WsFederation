@@ -1,4 +1,8 @@
-﻿using IdentityModel;
+﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
+
+
+using IdentityModel;
 using IdentityServer4.Configuration;
 using IdentityServer4.Extensions;
 using IdentityServer4.Models;
@@ -20,26 +24,21 @@ namespace IdentityServer4.WsFederation
 {
     public class SignInResponseGenerator
     {
-        //private readonly static ILog Logger = LogProvider.GetCurrentClassLogger();
-
         private readonly IdentityServerOptions _options;
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly IProfileService _profile;
         private readonly IKeyMaterialService _keys;
-        private readonly WsFederationOptions _wsfedOptions;
         private readonly IResourceStore _resources;
 
         public SignInResponseGenerator(
             IHttpContextAccessor contextAccessor, 
             IdentityServerOptions options,
-            WsFederationOptions wsfedOptions, 
             IProfileService profile,
             IKeyMaterialService keys, 
             IResourceStore resources)
         {
             _contextAccessor = contextAccessor;
             _options = options;
-            _wsfedOptions = wsfedOptions;
             _profile = profile;
             _keys = keys;
             _resources = resources;
@@ -59,11 +58,11 @@ namespace IdentityServer4.WsFederation
             return CreateResponse(validationResult, token);
         }
 
-        protected async Task<ClaimsIdentity> CreateSubjectAsync(SignInValidationResult validationResult)
+        protected async Task<ClaimsIdentity> CreateSubjectAsync(SignInValidationResult result)
         {
             var requestedClaimTypes = new List<string>();
 
-            var resources = await _resources.FindEnabledIdentityResourcesByScopeAsync(validationResult.Client.AllowedScopes);
+            var resources = await _resources.FindEnabledIdentityResourcesByScopeAsync(result.Client.AllowedScopes);
             foreach (var resource in resources)
             {
                 foreach (var claim in resource.UserClaims)
@@ -74,9 +73,9 @@ namespace IdentityServer4.WsFederation
 
             var ctx = new ProfileDataRequestContext
             {
-                Subject = validationResult.User,
+                Subject = result.User,
                 RequestedClaimTypes = requestedClaimTypes,
-                Client = validationResult.Client,
+                Client = result.Client,
                 Caller = "WS-Federation"
             };
 
@@ -84,18 +83,18 @@ namespace IdentityServer4.WsFederation
             
 
             // map outbound claims
-            var nameid = new Claim(ClaimTypes.NameIdentifier, validationResult.User.GetSubjectId());
-            nameid.Properties[ClaimProperties.SamlNameIdentifierFormat] = _wsfedOptions.DefaultSamlNameIdentifierFormat;
+            var nameid = new Claim(ClaimTypes.NameIdentifier, result.User.GetSubjectId());
+            nameid.Properties[ClaimProperties.SamlNameIdentifierFormat] = result.RelyingParty.SamlNameIdentifierFormat;
 
             var outboundClaims = new List<Claim> { nameid };
             foreach (var claim in ctx.IssuedClaims)
             {
-                if (_wsfedOptions.DefaultClaimMapping.ContainsKey(claim.Type))
+                if (result.RelyingParty.ClaimMapping.ContainsKey(claim.Type))
                 {
-                    var outboundClaim = new Claim(_wsfedOptions.DefaultClaimMapping[claim.Type], claim.Value);
+                    var outboundClaim = new Claim(result.RelyingParty.ClaimMapping[claim.Type], claim.Value);
                     if (outboundClaim.Type == ClaimTypes.NameIdentifier)
                     {
-                        outboundClaim.Properties[ClaimProperties.SamlNameIdentifierFormat] = _wsfedOptions.DefaultSamlNameIdentifierFormat;
+                        outboundClaim.Properties[ClaimProperties.SamlNameIdentifierFormat] = result.RelyingParty.SamlNameIdentifierFormat;
                     }
 
                     outboundClaims.Add(outboundClaim);
@@ -112,7 +111,7 @@ namespace IdentityServer4.WsFederation
             // System.IdentityModel.Tokens.AuthenticationMethods.
             // Password is the only one that can be directly matched, everything
             // else defaults to Unspecified.
-            if (validationResult.User.GetAuthenticationMethod() == OidcConstants.AuthenticationMethods.Password)
+            if (result.User.GetAuthenticationMethod() == OidcConstants.AuthenticationMethods.Password)
             {
                 outboundClaims.Add(new Claim(ClaimTypes.AuthenticationMethod, AuthenticationMethods.Password));
             }
@@ -127,26 +126,26 @@ namespace IdentityServer4.WsFederation
             return new ClaimsIdentity(outboundClaims, "idsrv");
         }
 
-        private async Task<System.IdentityModel.Tokens.SecurityToken> CreateSecurityTokenAsync(SignInValidationResult validationResult, ClaimsIdentity outgoingSubject)
+        private async Task<SecurityToken> CreateSecurityTokenAsync(SignInValidationResult result, ClaimsIdentity outgoingSubject)
         {
             var credential = await _keys.GetSigningCredentialsAsync();
             var key = credential.Key as Microsoft.IdentityModel.Tokens.X509SecurityKey; 
         
             var descriptor = new System.IdentityModel.Tokens.SecurityTokenDescriptor
             {
-                AppliesToAddress = validationResult.Client.ClientId,
-                Lifetime = new Lifetime(DateTime.UtcNow, DateTime.UtcNow.AddSeconds(validationResult.Client.IdentityTokenLifetime)),
-                ReplyToAddress = validationResult.Client.RedirectUris.First(),
-                SigningCredentials = new X509SigningCredentials(key.Certificate, _wsfedOptions.DefaultSignatureAlgorithm, _wsfedOptions.DefaultDigestAlgorithm),
+                AppliesToAddress = result.Client.ClientId,
+                Lifetime = new Lifetime(DateTime.UtcNow, DateTime.UtcNow.AddSeconds(result.Client.IdentityTokenLifetime)),
+                ReplyToAddress = result.Client.RedirectUris.First(),
+                SigningCredentials = new X509SigningCredentials(key.Certificate, result.RelyingParty.SignatureAlgorithm, result.RelyingParty.DigestAlgorithm),
                 Subject = outgoingSubject,
                 TokenIssuerName = _contextAccessor.HttpContext.GetIdentityServerIssuerUri(),
-                TokenType = _wsfedOptions.DefaultTokenType
+                TokenType = result.RelyingParty.TokenType
             };
 
-            //if (validationResult.RelyingParty.EncryptingCertificate != null)
-            //{
-            //    descriptor.EncryptingCredentials = new EncryptedKeyEncryptingCredentials(validationResult.RelyingParty.EncryptingCertificate);
-            //}
+            if (result.RelyingParty.EncryptionCertificate != null)
+            {
+                descriptor.EncryptingCredentials = new EncryptedKeyEncryptingCredentials(result.RelyingParty.EncryptionCertificate);
+            }
 
             return CreateSupportedSecurityTokenHandler().CreateToken(descriptor);
         }
@@ -179,7 +178,7 @@ namespace IdentityServer4.WsFederation
 
         private SecurityTokenHandlerCollection CreateSupportedSecurityTokenHandler()
         {
-            return new SecurityTokenHandlerCollection(new System.IdentityModel.Tokens.SecurityTokenHandler[]
+            return new SecurityTokenHandlerCollection(new SecurityTokenHandler[]
             {
                 new SamlSecurityTokenHandler(),
                 new EncryptedSecurityTokenHandler(),
