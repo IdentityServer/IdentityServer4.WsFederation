@@ -1,27 +1,15 @@
-﻿
-using IdentityServer4.Stores;
-using System;
-using System.ComponentModel;
+﻿using IdentityServer4.Stores;
 using System.IdentityModel.Services;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using static IdentityServer4.IdentityServerConstants;
 
 namespace IdentityServer4.WsFederation.Validation
 {
     public class SignInValidator
     {
         private readonly IClientStore _clients;
-
-        //private readonly static ILog Logger = LogProvider.GetCurrentClassLogger();
-
-        //private readonly IRelyingPartyService _relyingParties;
-        //private readonly ICustomWsFederationRequestValidator _customValidator;
-
-        //public SignInValidator(IRelyingPartyService relyingParties, ICustomWsFederationRequestValidator customValidator)
-        //{
-        //    _relyingParties = relyingParties;
-        //    _customValidator = customValidator;
-        //}
 
         public SignInValidator(IClientStore clients)
         {
@@ -41,7 +29,16 @@ namespace IdentityServer4.WsFederation.Validation
 
             if (client == null)
             {
-                LogError("Relying party not found: " + message.Realm, result);
+                LogError("Client not found: " + message.Realm, result);
+
+                return new SignInValidationResult
+                {
+                    Error = "invalid_relying_party"
+                };
+            }
+            if (client.ProtocolType != ProtocolTypes.WsFederation)
+            {
+                LogError("Client is not configured for WS-Federation", result);
 
                 return new SignInValidationResult
                 {
@@ -50,32 +47,16 @@ namespace IdentityServer4.WsFederation.Validation
             }
 
             result.Client = client;
+            result.ReplyUrl = client.RedirectUris.First();
 
             if (user == null ||
                 user.Identity.IsAuthenticated == false)
             {
                 result.SignInRequired = true;
-                return result;
             }
 
-            //result.ReplyUrl = rp.ReplyUrl;
-            //result.RelyingParty = rp;
-            //result.SignInRequestMessage = message;
-            //result.Subject = subject;
-
-            //Logger.Debug("Calling into custom validator: " + _customValidator.GetType().FullName);
-            //var customResult = await _customValidator.ValidateSignInRequestAsync(result);
-            //if (customResult.IsError)
-            //{
-            //    LogError("Error in custom validation: " + customResult.Error, result);
-            //    return new SignInValidationResult
-            //        {
-            //            IsError = true,
-            //            Error = customResult.Error,
-            //            ErrorMessage = customResult.ErrorMessage,
-            //        };
-            //}
-
+            result.User = user;
+            
             LogSuccess(result);
             return result;
         }

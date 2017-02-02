@@ -12,6 +12,7 @@ namespace IdentityServer4.WsFederation
 {
     public class WsFederationController : Controller
     {
+        private readonly SignInResponseGenerator _generator;
         private readonly ILogger<WsFederationController> _logger;
         private readonly MetadataResponseGenerator _metadata;
         private readonly IdentityServerOptions _options;
@@ -21,11 +22,13 @@ namespace IdentityServer4.WsFederation
             MetadataResponseGenerator metadata, 
             SignInValidator signinValidator, 
             IdentityServerOptions options,
+            SignInResponseGenerator generator,
             ILogger<WsFederationController> logger)
         {
             _metadata = metadata;
             _signinValidator = signinValidator;
             _options = options;
+            _generator = generator;
 
             _logger = logger;
         }
@@ -97,39 +100,17 @@ namespace IdentityServer4.WsFederation
             }
             else
             {
-                return null;
+                var responseMessage = await _generator.GenerateResponseAsync(result);
+                //await _cookies.AddValueAsync(WsFederationPluginOptions.CookieName, result.ReplyUrl);
+
+                //await _events.RaiseSuccessfulWsFederationEndpointEventAsync(
+                //        WsFederationEventConstants.Operations.SignIn,
+                //        result.RelyingParty.Realm,
+                //        result.Subject,
+                //        Request.RequestUri.AbsoluteUri);
+
+                return new SignInResult(responseMessage);
             }
-            
-            //var result = await _validator.ValidateAsync(msg, User as ClaimsPrincipal);
-
-            //if (result.IsSignInRequired)
-            //{
-            //    //Logger.Info("Redirecting to login page");
-            //    return RedirectToLogin(result);
-            //}
-            //if (result.IsError)
-            //{
-            //    //Logger.Error(result.Error);
-            //    //await _events.RaiseFailureWsFederationEndpointEventAsync(
-            //    //    WsFederationEventConstants.Operations.SignIn,
-            //    //    result.RelyingParty.Realm,
-            //    //    result.Subject,
-            //    //    Request.RequestUri.AbsoluteUri,
-            //    //    result.Error);
-
-            //    return BadRequest(result.Error);
-            //}
-
-            //var responseMessage = await _signInResponseGenerator.GenerateResponseAsync(result);
-            //await _cookies.AddValueAsync(WsFederationPluginOptions.CookieName, result.ReplyUrl);
-
-            //await _events.RaiseSuccessfulWsFederationEndpointEventAsync(
-            //        WsFederationEventConstants.Operations.SignIn,
-            //        result.RelyingParty.Realm,
-            //        result.Subject,
-            //        Request.RequestUri.AbsoluteUri);
-
-            //return new SignInResult(responseMessage);
         }
 
 
@@ -137,6 +118,5 @@ namespace IdentityServer4.WsFederation
         {
             throw new NotImplementedException();
         }
-
     }
 }

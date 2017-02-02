@@ -34,9 +34,10 @@ namespace IdentityServer4.WsFederation
                     ClientId = "urn:owinrp",
                     ProtocolType = ProtocolTypes.WsFederation,
 
-                    RedirectUris = { "http://localhost/foo" },
-                    
-                    AllowedScopes = { "openid" }
+                    RedirectUris = { "http://localhost:10313/" },
+
+
+                    AllowedScopes = { "openid", "profile" }
                 }
             };
         }

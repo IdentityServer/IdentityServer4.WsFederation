@@ -2,6 +2,7 @@
 using IdentityServer4.Models;
 using System.ComponentModel;
 using System.IdentityModel.Services;
+using System.Security.Claims;
 
 namespace IdentityServer4.WsFederation.Validation
 {
@@ -14,13 +15,10 @@ namespace IdentityServer4.WsFederation.Validation
         public string Error { get; set; }
         public string ErrorMessage { get; set; }
 
+        public ClaimsPrincipal User { get; set; }
         public bool SignInRequired { get; set; }
-        public Client Client { get; set; }
 
-        //public RelyingParty RelyingParty { get; set; }
-        //public string ReplyUrl { get; set; }
-        //public string HomeRealm { get; set; }
-        //public string Federation { get; set; }
-        //public ClaimsPrincipal Subject { get; set; }
+        public Client Client { get; set; }
+        public string ReplyUrl { get; set; }
     }
 }
