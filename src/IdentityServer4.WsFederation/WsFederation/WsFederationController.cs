@@ -66,7 +66,7 @@ namespace IdentityServer4.WsFederation
                 var signout = message as SignOutRequestMessage;
                 if (signout != null)
                 {
-                    return await ProcessSignOutAsync(signout);
+                    return ProcessSignOutAsync(signout);
                 }
             }
 
@@ -118,9 +118,9 @@ namespace IdentityServer4.WsFederation
         }
 
 
-        private Task<IActionResult> ProcessSignOutAsync(SignOutRequestMessage signout)
+        private IActionResult ProcessSignOutAsync(SignOutRequestMessage signout)
         {
-            throw new NotImplementedException();
+            return Redirect("~/connect/endsession");
         }
     }
 }

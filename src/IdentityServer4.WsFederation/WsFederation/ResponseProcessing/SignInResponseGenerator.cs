@@ -29,22 +29,25 @@ namespace IdentityServer4.WsFederation
         private readonly IProfileService _profile;
         private readonly IKeyMaterialService _keys;
         private readonly IResourceStore _resources;
+        private readonly IClientSessionService _clientSessionService;
 
         public SignInResponseGenerator(
             IHttpContextAccessor contextAccessor, 
             IdentityServerOptions options,
             IProfileService profile,
             IKeyMaterialService keys, 
-            IResourceStore resources)
+            IResourceStore resources,
+            IClientSessionService clientSessionService)
         {
             _contextAccessor = contextAccessor;
             _options = options;
             _profile = profile;
             _keys = keys;
             _resources = resources;
+            _clientSessionService = clientSessionService;
         }
 
-         public async Task<SignInResponseMessage> GenerateResponseAsync(SignInValidationResult validationResult)
+        public async Task<SignInResponseMessage> GenerateResponseAsync(SignInValidationResult validationResult)
         {
             //Logger.Info("Creating WS-Federation signin response");
 
@@ -53,6 +56,9 @@ namespace IdentityServer4.WsFederation
 
             // create token for user
             var token = await CreateSecurityTokenAsync(validationResult, outgoingSubject);
+
+            // tracks client id for signout purposes
+            await _clientSessionService.AddClientIdAsync(validationResult.Client.ClientId);
 
             // return response
             return CreateResponse(validationResult, token);

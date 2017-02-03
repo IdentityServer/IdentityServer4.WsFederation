@@ -23,5 +23,12 @@ namespace MvcOwinWsFederation.Controllers
             Request.GetOwinContext().Authentication.SignOut();
             return View();
         }
+
+        public ActionResult SignOutCleanup()
+        {
+            // this should only signout of cookies since it will be running in an iframe
+            Request.GetOwinContext().Authentication.SignOut("Cookies");
+            return new EmptyResult();
+        }
     }
 }

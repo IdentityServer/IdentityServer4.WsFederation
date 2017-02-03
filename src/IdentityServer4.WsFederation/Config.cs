@@ -35,7 +35,7 @@ namespace IdentityServer4.WsFederation
                     ProtocolType = ProtocolTypes.WsFederation,
 
                     RedirectUris = { "http://localhost:10313/" },
-
+                    LogoutUri = "http://localhost:10313/home/signoutcleanup",
 
                     AllowedScopes = { "openid", "profile" }
                 }
