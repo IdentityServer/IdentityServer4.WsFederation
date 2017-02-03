@@ -11,11 +11,13 @@ using System.Threading.Tasks;
 using IdentityServer4.Extensions;
 using IdentityServer4.WsFederation.Validation;
 using IdentityServer4.Configuration;
+using IdentityServer4.Services;
 
 namespace IdentityServer4.WsFederation
 {
     public class WsFederationController : Controller
     {
+        private readonly IClientSessionService _clientSessionService;
         private readonly SignInResponseGenerator _generator;
         private readonly ILogger<WsFederationController> _logger;
         private readonly MetadataResponseGenerator _metadata;
@@ -27,12 +29,14 @@ namespace IdentityServer4.WsFederation
             SignInValidator signinValidator, 
             IdentityServerOptions options,
             SignInResponseGenerator generator,
+            IClientSessionService clientSessionService,
             ILogger<WsFederationController> logger)
         {
             _metadata = metadata;
             _signinValidator = signinValidator;
             _options = options;
             _generator = generator;
+            _clientSessionService = clientSessionService;
 
             _logger = logger;
         }
@@ -112,6 +116,10 @@ namespace IdentityServer4.WsFederation
                 //        result.RelyingParty.Realm,
                 //        result.Subject,
                 //        Request.RequestUri.AbsoluteUri);
+
+                // tracks client id for signout purposes
+                await _clientSessionService.AddClientIdAsync(result.Client.ClientId);
+
 
                 return new SignInResult(responseMessage);
             }

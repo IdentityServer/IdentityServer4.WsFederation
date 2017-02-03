@@ -36,15 +36,13 @@ namespace IdentityServer4.WsFederation
             IdentityServerOptions options,
             IProfileService profile,
             IKeyMaterialService keys, 
-            IResourceStore resources,
-            IClientSessionService clientSessionService)
+            IResourceStore resources)
         {
             _contextAccessor = contextAccessor;
             _options = options;
             _profile = profile;
             _keys = keys;
             _resources = resources;
-            _clientSessionService = clientSessionService;
         }
 
         public async Task<SignInResponseMessage> GenerateResponseAsync(SignInValidationResult validationResult)
@@ -56,9 +54,6 @@ namespace IdentityServer4.WsFederation
 
             // create token for user
             var token = await CreateSecurityTokenAsync(validationResult, outgoingSubject);
-
-            // tracks client id for signout purposes
-            await _clientSessionService.AddClientIdAsync(validationResult.Client.ClientId);
 
             // return response
             return CreateResponse(validationResult, token);
@@ -137,7 +132,7 @@ namespace IdentityServer4.WsFederation
             var credential = await _keys.GetSigningCredentialsAsync();
             var key = credential.Key as Microsoft.IdentityModel.Tokens.X509SecurityKey; 
         
-            var descriptor = new System.IdentityModel.Tokens.SecurityTokenDescriptor
+            var descriptor = new SecurityTokenDescriptor
             {
                 AppliesToAddress = result.Client.ClientId,
                 Lifetime = new Lifetime(DateTime.UtcNow, DateTime.UtcNow.AddSeconds(result.Client.IdentityTokenLifetime)),
