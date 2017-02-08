@@ -109,18 +109,8 @@ namespace IdentityServer4.WsFederation
             else
             {
                 var responseMessage = await _generator.GenerateResponseAsync(result);
-                //await _cookies.AddValueAsync(WsFederationPluginOptions.CookieName, result.ReplyUrl);
-
-                //await _events.RaiseSuccessfulWsFederationEndpointEventAsync(
-                //        WsFederationEventConstants.Operations.SignIn,
-                //        result.RelyingParty.Realm,
-                //        result.Subject,
-                //        Request.RequestUri.AbsoluteUri);
-
-                // tracks client id for signout purposes
                 await _clientSessionService.AddClientIdAsync(result.Client.ClientId);
-
-
+                
                 return new SignInResult(responseMessage);
             }
         }

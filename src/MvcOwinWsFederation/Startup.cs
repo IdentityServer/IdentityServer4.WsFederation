@@ -17,12 +17,11 @@ namespace MvcOwinWsFederation
             });
 
             app.UseWsFederationAuthentication(new WsFederationAuthenticationOptions
-                {
-                    MetadataAddress = "http://localhost:5000/wsfederation",
-                    Wtrealm = "urn:owinrp",
+            {
+                MetadataAddress = "http://localhost:5000/wsfederation",
+                Wtrealm = "urn:owinrp",
 
-                    SignInAsAuthenticationType = "Cookies",
-                    SignOutWreply = "http://localhost:10313/"
+                SignInAsAuthenticationType = "Cookies"
             });
         }
     }

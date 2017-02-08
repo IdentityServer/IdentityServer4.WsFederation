@@ -29,7 +29,6 @@ namespace IdentityServer4.WsFederation
         private readonly IProfileService _profile;
         private readonly IKeyMaterialService _keys;
         private readonly IResourceStore _resources;
-        private readonly IClientSessionService _clientSessionService;
 
         public SignInResponseGenerator(
             IHttpContextAccessor contextAccessor, 

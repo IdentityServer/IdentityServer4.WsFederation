@@ -26,8 +26,6 @@ namespace IdentityServer4.WsFederation
             _contextAccessor = contextAccessor;
         }
 
-        private string IssuerUri => _contextAccessor.HttpContext.GetIdentityServerIssuerUri();
-
         public async Task<EntityDescriptor> GenerateAsync(string wsfedEndpoint)
         {
             var signingKey = (await _keys.GetSigningCredentialsAsync()).Key as X509SecurityKey;
@@ -36,9 +34,8 @@ namespace IdentityServer4.WsFederation
             var applicationDescriptor = GetApplicationDescriptor(wsfedEndpoint, cert);
             var tokenServiceDescriptor = GetTokenServiceDescriptor(wsfedEndpoint, cert);
 
-            var id = new EntityId(IssuerUri);
+            var id = new EntityId(_contextAccessor.HttpContext.GetIdentityServerIssuerUri());
             var entity = new EntityDescriptor(id);
-
 
             entity.SigningCredentials = new X509SigningCredentials(cert);
             entity.RoleDescriptors.Add(applicationDescriptor);
@@ -50,20 +47,14 @@ namespace IdentityServer4.WsFederation
         private SecurityTokenServiceDescriptor GetTokenServiceDescriptor(string wsfedEndpoint, X509Certificate2 cert)
         {
             var tokenService = new SecurityTokenServiceDescriptor();
-            tokenService.ServiceDescription = "poc";
+            tokenService.ServiceDescription = "IdentityServer4 WS-Federation Endpoint";
             tokenService.Keys.Add(GetSigningKeyDescriptor(cert));
-            //if (_options.SecondarySigningCertificate != null)
-            //{
-            //    tokenService.Keys.Add(GetSigningKeyDescriptor(_options.SecondarySigningCertificate));
-            //}
-
+            
             tokenService.PassiveRequestorEndpoints.Add(new EndpointReference(wsfedEndpoint));
             tokenService.SecurityTokenServiceEndpoints.Add(new EndpointReference(wsfedEndpoint));
 
             tokenService.TokenTypesOffered.Add(new Uri("http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV1.1"));
             tokenService.TokenTypesOffered.Add(new Uri("http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0"));
-            //tokenService.TokenTypesOffered.Add(new Uri(TokenTypes.JsonWebToken));
-
             tokenService.ProtocolsSupported.Add(new Uri("http://docs.oasis-open.org/wsfed/federation/200706"));
 
             return tokenService;
@@ -75,19 +66,12 @@ namespace IdentityServer4.WsFederation
             tokenService.ServiceDescription = "poc";
             tokenService.Keys.Add(GetEncryptionDescriptor(cert));
             tokenService.Keys.Add(GetSigningKeyDescriptor(cert));
-            //if (_options.SecondarySigningCertificate != null)
-            //{
-            //    tokenService.Keys.Add(GetEncryptionDescriptor(_options.SecondarySigningCertificate));
-            //    tokenService.Keys.Add(GetSigningKeyDescriptor(_options.SecondarySigningCertificate));
-            //}
 
             tokenService.PassiveRequestorEndpoints.Add(new EndpointReference(wsfedEndpoint));
             tokenService.Endpoints.Add(new EndpointReference(wsfedEndpoint));
 
             tokenService.TokenTypesOffered.Add(new Uri("http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV1.1"));
             tokenService.TokenTypesOffered.Add(new Uri("http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0"));
-            //tokenService.TokenTypesOffered.Add(new Uri(TokenTypes.JsonWebToken));
-
             tokenService.ProtocolsSupported.Add(new Uri("http://docs.oasis-open.org/wsfed/federation/200706"));
 
             return tokenService;
