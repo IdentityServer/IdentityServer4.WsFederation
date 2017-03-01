@@ -7,13 +7,13 @@ This repo shows a simple implementation of WS-Federation IdP services.
 This is useful for connecting SharePoint or older ASP.NET relying parties to IdentityServer.
 
 **This is not supposed to be a generic WS-Federation implementation, but is rather a sample that you can use 
-as a starting point to build your own WS-Federation support (or even for integrating other custom protocols, which 
+as a starting point to build your own WS-Federation support (or even for for inspiration for integrating other custom protocols, which 
 are not natively support by IdentityServer4).**
 
 The following is a brief description of some technical points of interest. Feel free to amend this document if more details are needed.
 
 ## .NET Support
-The WS-Federation classes used in this repo are part of the "desktop" .NET Framework - but are not included in .NET Core.
+The underlying WS-Federation classes used in this repo are only part of the "desktop" .NET Framework and are not included in .NET Core.
 
 ## WS-Federation endpoint
 The WS-Federation endpoint (metadata, sign-in and out) is implemented via an MVC controller (~/wsfederation).
