@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.IO;
+using System.Security.Cryptography.X509Certificates;
 
 namespace IdentityServer4.WsFederation
 {
@@ -17,8 +19,10 @@ namespace IdentityServer4.WsFederation
         {
             services.AddMvc();
 
+            var cert = new X509Certificate2(Path.Combine(Directory.GetCurrentDirectory(), "idsrvtest.pfx"), "idsrv3test");
+
             services.AddIdentityServer()
-                .AddSigningCredential("CN=sts")
+                .AddSigningCredential(cert)
                 .AddInMemoryIdentityResources(Config.GetIdentityResources())
                 .AddInMemoryApiResources(Config.GetApiResources())
                 .AddInMemoryClients(Config.GetClients())
