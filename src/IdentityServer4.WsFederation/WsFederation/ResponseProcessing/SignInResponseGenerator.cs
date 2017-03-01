@@ -10,6 +10,7 @@ using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using IdentityServer4.WsFederation.Validation;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Protocols.WSTrust;
@@ -29,24 +30,27 @@ namespace IdentityServer4.WsFederation
         private readonly IProfileService _profile;
         private readonly IKeyMaterialService _keys;
         private readonly IResourceStore _resources;
+        private readonly ILogger<SignInResponseGenerator> _logger;
 
         public SignInResponseGenerator(
             IHttpContextAccessor contextAccessor, 
             IdentityServerOptions options,
             IProfileService profile,
             IKeyMaterialService keys, 
-            IResourceStore resources)
+            IResourceStore resources,
+            ILogger<SignInResponseGenerator> logger)
         {
             _contextAccessor = contextAccessor;
             _options = options;
             _profile = profile;
             _keys = keys;
             _resources = resources;
+            _logger = logger;
         }
 
         public async Task<SignInResponseMessage> GenerateResponseAsync(SignInValidationResult validationResult)
         {
-            //Logger.Info("Creating WS-Federation signin response");
+            _logger.LogDebug("Creating WS-Federation signin response");
 
             // create subject
             var outgoingSubject = await CreateSubjectAsync(validationResult);
@@ -81,7 +85,6 @@ namespace IdentityServer4.WsFederation
 
             await _profile.GetProfileDataAsync(ctx);
             
-
             // map outbound claims
             var nameid = new Claim(ClaimTypes.NameIdentifier, result.User.GetSubjectId());
             nameid.Properties[ClaimProperties.SamlNameIdentifierFormat] = result.RelyingParty.SamlNameIdentifierFormat;
@@ -99,9 +102,13 @@ namespace IdentityServer4.WsFederation
 
                     outboundClaims.Add(outboundClaim);
                 }
-                else if(result.RelyingParty.TokenType != WsFederationConstants.TokenTypes.Saml11TokenProfile11)
+                else if (result.RelyingParty.TokenType != WsFederationConstants.TokenTypes.Saml11TokenProfile11)
                 {
                     outboundClaims.Add(claim);
+                }
+                else
+                {
+                    _logger.LogInformation("No explicit claim type mapping for {claimType} configured. Saml11 requires a URI claim type. Skipping.", claim.Type);
                 }
             }
 

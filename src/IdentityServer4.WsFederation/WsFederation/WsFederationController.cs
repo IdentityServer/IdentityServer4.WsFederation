@@ -101,6 +101,7 @@ namespace IdentityServer4.WsFederation
             {
                 var returnUrl = Url.Action("Index");
                 returnUrl = returnUrl.AddQueryString(Request.QueryString.Value);
+
                 var loginUrl = _options.UserInteraction.LoginUrl;
                 var url = loginUrl.AddQueryString(_options.UserInteraction.LoginReturnUrlParameter, returnUrl);
 
@@ -108,13 +109,13 @@ namespace IdentityServer4.WsFederation
             }
             else
             {
+                // create protocol response
                 var responseMessage = await _generator.GenerateResponseAsync(result);
                 await _clientSessionService.AddClientIdAsync(result.Client.ClientId);
                 
                 return new SignInResult(responseMessage);
             }
         }
-
 
         private IActionResult ProcessSignOutAsync(SignOutRequestMessage signout)
         {

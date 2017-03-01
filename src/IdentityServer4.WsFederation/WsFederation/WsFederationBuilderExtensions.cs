@@ -7,8 +7,10 @@ using IdentityServer4.WsFederation;
 using IdentityServer4.WsFederation.Stores;
 using IdentityServer4.WsFederation.Validation;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using System;
+using System.Collections.Generic;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -20,7 +22,7 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.Services.AddTransient<SignInResponseGenerator>();
             builder.Services.AddTransient<SignInValidator>();
             builder.Services.AddTransient<IReturnUrlParser, WsFederationReturnUrlParser>();
-            builder.Services.AddTransient<IRelyingPartyStore, NoRelyingPartyStore>();
+            builder.Services.TryAddTransient<IRelyingPartyStore, NoRelyingPartyStore>();
 
             builder.Services.AddSingleton(
                 resolver => resolver.GetRequiredService<IOptions<WsFederationOptions>>().Value);
@@ -38,6 +40,14 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             builder.Services.Configure<WsFederationOptions>(configuration);
             return builder.AddWsFederation();
+        }
+
+        public static IIdentityServerBuilder AddInMemoryRelyingParties(this IIdentityServerBuilder builder, IEnumerable<RelyingParty> relyingParties)
+        {
+            builder.Services.AddSingleton(relyingParties);
+            builder.Services.AddSingleton<InMemoryRelyingPartyStore>();
+
+            return builder;
         }
     }
 }
