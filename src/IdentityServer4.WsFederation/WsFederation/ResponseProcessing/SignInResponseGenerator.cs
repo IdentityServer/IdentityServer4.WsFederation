@@ -99,7 +99,7 @@ namespace IdentityServer4.WsFederation
 
                     outboundClaims.Add(outboundClaim);
                 }
-                else
+                else if(result.RelyingParty.TokenType != WsFederationConstants.TokenTypes.Saml11TokenProfile11)
                 {
                     outboundClaims.Add(claim);
                 }
