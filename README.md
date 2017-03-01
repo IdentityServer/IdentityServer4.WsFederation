@@ -2,7 +2,7 @@
 **Sample** for implementing WS-Federation IdP support for IdentityServer4
 
 ## Overview
-IdentityServer4 is designed to be extendable with custom protocol endpoints.
+IdentityServer4 is designed to be extensible with custom protocol endpoints.
 This repo shows a simple implementation of WS-Federation IdP services.
 This is useful for connecting SharePoint or older ASP.NET relying parties to IdentityServer.
 
@@ -34,12 +34,12 @@ The outcome of these operations is a `SignInResponseMessage` object which then g
 
 ## Configuration
 For most parts, the WS-Federation endpoint can use the standard IdentityServer4 client configuration for relying parties.
-But there are also options available setting WS-Federation specific options.
+But there are also options available for setting WS-Federation specific options.
 
 ### Defaults
 You can configure global defaults in the `WsFederationOptions` class, e.g.:
 
-* defaultt token type (SAML 1.1 vs SAML 2.0)
+* default token type (SAML 1.1 vs SAML 2.0)
 * default hashing and digest algorithms
 * default SAML name identifier format
 * default mappings from "short" claim types to WS-* claim types
