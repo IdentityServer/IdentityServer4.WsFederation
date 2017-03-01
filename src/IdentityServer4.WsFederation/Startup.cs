@@ -8,6 +8,11 @@ namespace IdentityServer4.WsFederation
 {
     public class Startup
     {
+        public Startup(ILoggerFactory loggerFactory)
+        {
+            loggerFactory.AddConsole(LogLevel.Information);
+        }
+
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
@@ -24,17 +29,8 @@ namespace IdentityServer4.WsFederation
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             app.UseDeveloperExceptionPage();
-            loggerFactory.AddConsole(LogLevel.Debug);
-
+            
             app.UseIdentityServer();
-
-            // cookie middleware for temporarily storing the outcome of the external authentication
-            app.UseCookieAuthentication(new CookieAuthenticationOptions
-            {
-                AuthenticationScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme,
-                AutomaticAuthenticate = false,
-                AutomaticChallenge = false
-            });
 
             // middleware for google authentication
             app.UseGoogleAuthentication(new GoogleOptions
