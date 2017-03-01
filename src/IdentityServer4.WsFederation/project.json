@@ -6,7 +6,7 @@
     "Microsoft.AspNetCore.Mvc": "1.1.1",
     "Microsoft.AspNetCore.StaticFiles": "1.1.0",
     "Microsoft.Extensions.Logging.Console": "1.1.0",
-    "IdentityServer4": "1.0.2",
+    "IdentityServer4": "1.2.0",
     "Microsoft.AspNetCore.Authentication.Google": "1.1.0"
   },
 
