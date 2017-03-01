@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using IdentityModel;
 using Microsoft.IdentityModel.Tokens;
 using System.Collections.Generic;
 using System.Security.Claims;
@@ -17,9 +18,15 @@ namespace IdentityServer4.WsFederation
 
         public IDictionary<string, string> DefaultClaimMapping { get; set; } = new Dictionary<string, string>
         {
-            { "name", ClaimTypes.Name },
-            { "sub", ClaimTypes.NameIdentifier },
-            { "email", ClaimTypes.Email }
+            { JwtClaimTypes.Name, ClaimTypes.Name },
+            { JwtClaimTypes.Subject, ClaimTypes.NameIdentifier },
+            { JwtClaimTypes.Email, ClaimTypes.Email },
+            { JwtClaimTypes.GivenName, ClaimTypes.GivenName },
+            { JwtClaimTypes.FamilyName, ClaimTypes.Surname },
+            { JwtClaimTypes.BirthDate, ClaimTypes.DateOfBirth },
+            { JwtClaimTypes.WebSite, ClaimTypes.Webpage },
+            { JwtClaimTypes.Gender, ClaimTypes.Gender },
+            { JwtClaimTypes.Role, ClaimTypes.Role }
         };
     }
 }
