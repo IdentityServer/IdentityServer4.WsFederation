@@ -97,3 +97,25 @@ services.AddIdentityServer()
     .AddInMemoryRelyingParties(Config.GetRelyingParties());
 ```
 
+## Connecting a relying party to the WS-Federation endpoint
+
+### Using Katana
+Use the Katana WS-Federation middleware to point to the WS-Federation endpoint, e.g.:
+
+```csharp
+public void Configuration(IAppBuilder app)
+{
+    app.UseCookieAuthentication(new CookieAuthenticationOptions
+    {
+        AuthenticationType = "Cookies"
+    });
+
+    app.UseWsFederationAuthentication(new WsFederationAuthenticationOptions
+    {
+        MetadataAddress = "http://localhost:5000/wsfederation",
+        Wtrealm = "urn:owinrp",
+
+        SignInAsAuthenticationType = "Cookies"
+    });
+}
+```
