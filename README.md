@@ -7,8 +7,8 @@ This repo shows a simple implementation of WS-Federation IdP services.
 This is useful for connecting SharePoint or older ASP.NET relying parties to IdentityServer.
 
 **This is not supposed to be a generic WS-Federation implementation, but is rather a sample that you can use 
-as a starting point to build your own WS-Federation support (or even for for inspiration for integrating other custom protocols, which 
-are not natively support by IdentityServer4).**
+as a starting point to build your own WS-Federation support (or even for inspiration for integrating other custom protocols, which 
+are not natively supported by IdentityServer4).**
 
 The following is a brief description of some technical points of interest. Feel free to amend this document if more details are needed.
 
@@ -39,7 +39,7 @@ But there are also options available for setting WS-Federation specific options.
 ### Defaults
 You can configure global defaults in the `WsFederationOptions` class, e.g.:
 
-* default token type (SAML 1.1 vs SAML 2.0)
+* default token type (SAML 1.1 or SAML 2.0)
 * default hashing and digest algorithms
 * default SAML name identifier format
 * default mappings from "short" claim types to WS-* claim types
@@ -80,8 +80,9 @@ public static IEnumerable<Client> GetClients()
 If you want to deviate from the global defaults (e.g. set a different token type or claim mapping) for a specific
 relying party, you can define a `RelyingParty` object that uses the same realm name as the client ID used above.
 
-The sample contains an in-memory relying party store that you can use to make these relying party specific settings
+This sample contains an in-memory relying party store that you can use to make these relying party specific settings
 available to the WS-Federation engine (using the `AddInMemoryRelyingParty` extension method).
+Otherwise, if you want to use your own store, you will need an implementation of `IRelyingPartyStore`.
 
 ### Configuring IdentityServer
 This repo contains an extension method for the IdentityServer builder object to register all the necessary services in DI, e.g.:
