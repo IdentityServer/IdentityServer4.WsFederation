@@ -45,7 +45,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IIdentityServerBuilder AddInMemoryRelyingParties(this IIdentityServerBuilder builder, IEnumerable<RelyingParty> relyingParties)
         {
             builder.Services.AddSingleton(relyingParties);
-            builder.Services.AddSingleton<InMemoryRelyingPartyStore>();
+            builder.Services.AddSingleton<IRelyingPartyStore, InMemoryRelyingPartyStore>();
 
             return builder;
         }
