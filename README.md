@@ -120,3 +120,7 @@ public void Configuration(IAppBuilder app)
     });
 }
 ```
+
+### SharePoint
+
+see https://www.identityserver.com/articles/identityserver4-ws-federation-and-sharepoint/
