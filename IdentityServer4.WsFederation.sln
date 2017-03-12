@@ -1,16 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26228.4
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{54D98041-C6CE-4487-AC2B-3C44C6FF14D4}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7DD70EFA-313C-4275-B586-F592EDFAFA1F}"
-	ProjectSection(SolutionItems) = preProject
-		global.json = global.json
-	EndProjectSection
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "IdentityServer4.WsFederation", "src\IdentityServer4.WsFederation\IdentityServer4.WsFederation.xproj", "{BA230C51-500F-4E00-9F92-522E1AA97727}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityServer4.WsFederation", "src\IdentityServer4.WsFederation\IdentityServer4.WsFederation.csproj", "{BA230C51-500F-4E00-9F92-522E1AA97727}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MVC OWIN WS-Federation", "src\MvcOwinWsFederation\MVC OWIN WS-Federation.csproj", "{A40486A5-0BEB-4CB0-9390-4A0D998CE3E1}"
 EndProject
