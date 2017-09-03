@@ -10,8 +10,8 @@ using IdentityServer4.Extensions;
 using Microsoft.Extensions.Logging;
 using IdentityServer4.WsFederation.Validation;
 using Microsoft.AspNetCore.Http;
-using System.IdentityModel.Services;
 using System.Net;
+using Microsoft.IdentityModel.Protocols.WsFederation;
 
 namespace IdentityServer4.WsFederation
 {
@@ -20,14 +20,17 @@ namespace IdentityServer4.WsFederation
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly ILogger<WsFederationReturnUrlParser> _logger;
         private readonly SignInValidator _signinValidator;
+        private readonly IUserSession _userSession;
 
         public WsFederationReturnUrlParser(
+            IUserSession userSession,
             IHttpContextAccessor contextAccessor,
             SignInValidator signinValidator,
             ILogger<WsFederationReturnUrlParser> logger)
         {
             _contextAccessor = contextAccessor;
             _signinValidator = signinValidator;
+            _userSession = userSession;
             _logger = logger;
         }
 
@@ -47,7 +50,7 @@ namespace IdentityServer4.WsFederation
 
         public async Task<AuthorizationRequest> ParseAsync(string returnUrl)
         {
-            var user = await _contextAccessor.HttpContext.GetIdentityServerUserAsync();
+            var user = await _userSession.GetUserAsync();
 
             var signInMessage = GetSignInRequestMessage(returnUrl);
             if (signInMessage == null) return null;
@@ -60,11 +63,11 @@ namespace IdentityServer4.WsFederation
             var request = new AuthorizationRequest()
             {
                 ClientId = result.Client.ClientId,
-                IdP = result.SignInRequestMessage.HomeRealm,
-                RedirectUri = result.SignInRequestMessage.Reply
+                IdP = result.WsFederationMessage.Wtrealm,
+                RedirectUri = result.WsFederationMessage.Wreply
             };
 
-            foreach (var item in result.SignInRequestMessage.Parameters)
+            foreach (var item in result.WsFederationMessage.Parameters)
             {
                 request.Parameters.Add(item.Key, item.Value);
             }
@@ -72,17 +75,12 @@ namespace IdentityServer4.WsFederation
             return request;
         }
 
-        private SignInRequestMessage GetSignInRequestMessage(string returnUrl)
+        private WsFederationMessage GetSignInRequestMessage(string returnUrl)
         {
             var decoded = WebUtility.UrlDecode(returnUrl);
-            var url = "https://dummy.com" + decoded;
-
-            WSFederationMessage message;
-            if (WSFederationMessage.TryCreateFromUri(new Uri(url), out message))
-            {
-                return message as SignInRequestMessage;
-            }
-
+            WsFederationMessage message = WsFederationMessage.FromQueryString(decoded);
+            if (message.IsSignInMessage)
+                return message;
             return null;
         }
     }

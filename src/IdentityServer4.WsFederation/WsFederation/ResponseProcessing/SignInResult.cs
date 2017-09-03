@@ -4,16 +4,16 @@
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.IdentityModel.Services;
+using Microsoft.IdentityModel.Protocols.WsFederation;
 using System.Threading.Tasks;
 
 namespace IdentityServer4.WsFederation
 {
     public class SignInResult : IActionResult
     {
-        public SignInResponseMessage Message { get; set; }
+        public WsFederationMessage Message { get; set; }
 
-        public SignInResult(SignInResponseMessage message)
+        public SignInResult(WsFederationMessage message)
         {
             Message = message;
         }
@@ -21,7 +21,7 @@ namespace IdentityServer4.WsFederation
         public Task ExecuteResultAsync(ActionContext context)
         {
             context.HttpContext.Response.ContentType = "text/html";
-            return context.HttpContext.Response.WriteAsync(Message.WriteFormPost());
+            return context.HttpContext.Response.WriteAsync(Message.BuildFormPost());
         }
     }
 }

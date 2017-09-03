@@ -5,19 +5,19 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
-using System.IdentityModel.Services;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityServer4.Extensions;
 using IdentityServer4.WsFederation.Validation;
 using IdentityServer4.Configuration;
 using IdentityServer4.Services;
+using Microsoft.IdentityModel.Protocols.WsFederation;
 
 namespace IdentityServer4.WsFederation
 {
     public class WsFederationController : Controller
     {
-        private readonly IClientSessionService _clientSessionService;
+        private readonly IUserSession _userSession;
         private readonly SignInResponseGenerator _generator;
         private readonly ILogger<WsFederationController> _logger;
         private readonly MetadataResponseGenerator _metadata;
@@ -29,15 +29,14 @@ namespace IdentityServer4.WsFederation
             SignInValidator signinValidator, 
             IdentityServerOptions options,
             SignInResponseGenerator generator,
-            IClientSessionService clientSessionService,
+            IUserSession userSession,
             ILogger<WsFederationController> logger)
         {
             _metadata = metadata;
             _signinValidator = signinValidator;
             _options = options;
             _generator = generator;
-            _clientSessionService = clientSessionService;
-
+            _userSession = userSession;
             _logger = logger;
         }
 
@@ -53,32 +52,28 @@ namespace IdentityServer4.WsFederation
                 return new MetadataResult(entity);
             }
             
+
             var url = Url.Action("Index", "WsFederation", null, Request.Scheme, Request.Host.Value) + Request.QueryString;
             _logger.LogDebug("Start WS-Federation request: {url}", url);
 
-            WSFederationMessage message;
-            var user = await HttpContext.GetIdentityServerUserAsync();
-
-            if (WSFederationMessage.TryCreateFromUri(new Uri(url), out message))
+            var user = await _userSession.GetUserAsync();
+            WsFederationMessage message = WsFederationMessage.FromUri(new Uri(url));
+            var isSignin = message.IsSignInMessage;
+            if (isSignin)
             {
-                var signin = message as SignInRequestMessage;
-                if (signin != null)
-                {
-                    return await ProcessSignInAsync(signin, user);
-                }
-
-                var signout = message as SignOutRequestMessage;
-                if (signout != null)
-                {
-                    return ProcessSignOutAsync(signout);
-                }
+                return await ProcessSignInAsync(message, user);
+            }
+            var isSignout = message.IsSignOutMessage;
+            if (isSignout)
+            {
+                return ProcessSignOutAsync(message);
             }
 
             return BadRequest("Invalid WS-Federation request");
         }
 
         
-        private async Task<IActionResult> ProcessSignInAsync(SignInRequestMessage signin, ClaimsPrincipal user)
+        private async Task<IActionResult> ProcessSignInAsync(WsFederationMessage signin, ClaimsPrincipal user)
         {
             if (user != null)
             {
@@ -111,13 +106,13 @@ namespace IdentityServer4.WsFederation
             {
                 // create protocol response
                 var responseMessage = await _generator.GenerateResponseAsync(result);
-                await _clientSessionService.AddClientIdAsync(result.Client.ClientId);
+                await _userSession.AddClientIdAsync(result.Client.ClientId);
                 
                 return new SignInResult(responseMessage);
             }
         }
 
-        private IActionResult ProcessSignOutAsync(SignOutRequestMessage signout)
+        private IActionResult ProcessSignOutAsync(WsFederationMessage signout)
         {
             return Redirect("~/connect/endsession");
         }

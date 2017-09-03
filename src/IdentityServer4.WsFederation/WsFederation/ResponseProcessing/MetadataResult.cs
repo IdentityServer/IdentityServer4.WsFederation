@@ -4,32 +4,34 @@
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.IdentityModel.Metadata;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using Microsoft.IdentityModel.Protocols.WsFederation;
 
 namespace IdentityServer4.WsFederation
 {
     public class MetadataResult : IActionResult
     {
-        private readonly EntityDescriptor _entity;
+        private readonly WsFederationConfiguration _config;
 
-        public MetadataResult(EntityDescriptor entity)
+        public MetadataResult(WsFederationConfiguration config)
         {
-            _entity = entity;
+            _config = config;
         }
 
         public Task ExecuteResultAsync(ActionContext context)
         {
-            var ser = new MetadataSerializer();
-            var sb = new StringBuilder(512);
-
-            ser.WriteMetadata(XmlWriter.Create(new StringWriter(sb), new XmlWriterSettings { OmitXmlDeclaration = true }), _entity);
-
+            var ser = new WsFederationMetadataSerializer();
+            var ms = new MemoryStream();
+            XmlWriter writer = XmlWriter.Create(ms);
+            ser.WriteMetadata(writer, _config);
+            writer.Flush();
+            ms.Position = 0;
             context.HttpContext.Response.ContentType = "application/xml";
-            return context.HttpContext.Response.WriteAsync(sb.ToString());
+            var metaAsString = Encoding.UTF8.GetString(ms.ToArray());
+            return context.HttpContext.Response.WriteAsync(metaAsString);
         }
     }
 }

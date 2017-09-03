@@ -13,9 +13,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.IdentityModel.Protocols.WSTrust;
-using System.IdentityModel.Services;
-using System.IdentityModel.Tokens;
+// using System.IdentityModel.Protocols.WSTrust;
+// using System.IdentityModel.Services;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.IdentityModel.Tokens.Saml;
+using Microsoft.IdentityModel.Protocols;
+using Microsoft.IdentityModel.Protocols.WsFederation;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -48,7 +51,7 @@ namespace IdentityServer4.WsFederation
             _logger = logger;
         }
 
-        public async Task<SignInResponseMessage> GenerateResponseAsync(SignInValidationResult validationResult)
+        public async Task<WsFederationMessage> GenerateResponseAsync(SignInValidationResult validationResult)
         {
             _logger.LogDebug("Creating WS-Federation signin response");
 
@@ -120,11 +123,11 @@ namespace IdentityServer4.WsFederation
             // else defaults to Unspecified.
             if (result.User.GetAuthenticationMethod() == OidcConstants.AuthenticationMethods.Password)
             {
-                outboundClaims.Add(new Claim(ClaimTypes.AuthenticationMethod, AuthenticationMethods.Password));
+                outboundClaims.Add(new Claim(ClaimTypes.AuthenticationMethod, SamlConstants.AuthenticationMethods.PasswordString));
             }
             else
             {
-                outboundClaims.Add(new Claim(ClaimTypes.AuthenticationMethod, AuthenticationMethods.Unspecified));
+                outboundClaims.Add(new Claim(ClaimTypes.AuthenticationMethod, SamlConstants.AuthenticationMethods.UnspecifiedString));
             }
 
             // authentication instant claim is required
@@ -140,57 +143,71 @@ namespace IdentityServer4.WsFederation
         
             var descriptor = new SecurityTokenDescriptor
             {
-                AppliesToAddress = result.Client.ClientId,
-                Lifetime = new Lifetime(DateTime.UtcNow, DateTime.UtcNow.AddSeconds(result.Client.IdentityTokenLifetime)),
-                ReplyToAddress = result.Client.RedirectUris.First(),
-                SigningCredentials = new X509SigningCredentials(key.Certificate, result.RelyingParty.SignatureAlgorithm, result.RelyingParty.DigestAlgorithm),
+                Audience = result.Client.ClientId,
+                IssuedAt = DateTime.UtcNow,
+                NotBefore = DateTime.UtcNow,
+                Expires = DateTime.UtcNow.AddSeconds(result.Client.IdentityTokenLifetime),
+                SigningCredentials = new SigningCredentials(key, result.RelyingParty.SignatureAlgorithm, result.RelyingParty.DigestAlgorithm),
                 Subject = outgoingSubject,
-                TokenIssuerName = _contextAccessor.HttpContext.GetIdentityServerIssuerUri(),
-                TokenType = result.RelyingParty.TokenType
+                Issuer = _contextAccessor.HttpContext.GetIdentityServerIssuerUri(),
+                //TODO: not found in aspnet core version
+                // TokenType = result.RelyingParty.TokenType
+                // ReplyToAddress = result.Client.RedirectUris.First(),
             };
 
             if (result.RelyingParty.EncryptionCertificate != null)
             {
-                descriptor.EncryptingCredentials = new EncryptedKeyEncryptingCredentials(result.RelyingParty.EncryptionCertificate);
+                var encryptionKey = new X509SecurityKey(result.RelyingParty.EncryptionCertificate);
+                // TODO: check EncryptingCredentials()
+                // SecurityAlgorithms.RsaOaepKeyWrap
+                descriptor.EncryptingCredentials = new EncryptingCredentials(encryptionKey, result.RelyingParty.SignatureAlgorithm, result.RelyingParty.DigestAlgorithm);
             }
 
-            return CreateSupportedSecurityTokenHandler().CreateToken(descriptor);
+            var handler = CreateTokenHandler();
+            return handler.CreateToken(descriptor);
         }
 
-        private SignInResponseMessage CreateResponse(SignInValidationResult validationResult, SecurityToken token)
+        private WsFederationMessage CreateResponse(SignInValidationResult validationResult, SecurityToken token)
         {
-            var rstr = new RequestSecurityTokenResponse
-            {
-                AppliesTo = new EndpointReference(validationResult.Client.ClientId),
-                Context = validationResult.SignInRequestMessage.Context,
-                ReplyTo = validationResult.ReplyUrl,
-                RequestedSecurityToken = new RequestedSecurityToken(token)
+            var handler = CreateTokenHandler();
+            var responseMessage = new WsFederationMessage{
+                Wa = Microsoft.IdentityModel.Protocols.WsFederation.WsFederationConstants.WsFederationActions.SignIn,
+                Wresult = handler.WriteToken(token),
+                Wctx = Guid.NewGuid().ToString(),
             };
+            // var rstr = new RequestSecurityTokenResponse
+            // {
+            //     AppliesTo = new EndpointReference(validationResult.Client.ClientId),
+            //     Context = validationResult.SignInRequestMessage.Context,
+            //     ReplyTo = validationResult.ReplyUrl,
+            //     RequestedSecurityToken = new RequestedSecurityToken(token)
+            // };
 
-            var serializer = new WSFederationSerializer(
-                new WSTrust13RequestSerializer(),
-                new WSTrust13ResponseSerializer());
+            // var serializer = new WSFederationSerializer(
+            //     new WSTrust13RequestSerializer(),
+            //     new WSTrust13ResponseSerializer());
 
-            var mgr = SecurityTokenHandlerCollectionManager.CreateEmptySecurityTokenHandlerCollectionManager();
-            mgr[SecurityTokenHandlerCollectionManager.Usage.Default] = CreateSupportedSecurityTokenHandler();
+            // var mgr = SecurityTokenHandlerCollectionManager.CreateEmptySecurityTokenHandlerCollectionManager();
+            // mgr[SecurityTokenHandlerCollectionManager.Usage.Default] = CreateSupportedSecurityTokenHandler();
 
-            var responseMessage = new SignInResponseMessage(
-                new Uri(validationResult.ReplyUrl),
-                rstr,
-                serializer,
-                new WSTrustSerializationContext(mgr));
+            // // var message = new SamlMessage
+            // var responseMessage = new SignInResponseMessage(
+            //     new Uri(validationResult.ReplyUrl),
+            //     rstr,
+            //     serializer,
+            //     new WSTrustSerializationContext(mgr));
 
             return responseMessage;
         }
 
-        private SecurityTokenHandlerCollection CreateSupportedSecurityTokenHandler()
+        private SecurityTokenHandler CreateTokenHandler()
         {
-            return new SecurityTokenHandlerCollection(new SecurityTokenHandler[]
-            {
+            var list = new List<SecurityTokenHandler>{
                 new SamlSecurityTokenHandler(),
-                new EncryptedSecurityTokenHandler(),
-                new Saml2SecurityTokenHandler()
-            });
+                // new EncryptedSecurityTokenHandler(),
+                // new Saml2SecurityTokenHandler()
+            };
+            return list.First();
         }
     }
 }

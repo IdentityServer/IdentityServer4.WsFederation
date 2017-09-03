@@ -3,11 +3,11 @@
 
 
 using IdentityServer4.Stores;
-using System.IdentityModel.Services;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityServer4.WsFederation.Stores;
+using Microsoft.IdentityModel.Protocols.WsFederation;
 
 namespace IdentityServer4.WsFederation.Validation
 {
@@ -24,20 +24,20 @@ namespace IdentityServer4.WsFederation.Validation
             _relyingParties = relyingParties;
         }
 
-        public async Task<SignInValidationResult> ValidateAsync(SignInRequestMessage message, ClaimsPrincipal user)
+        public async Task<SignInValidationResult> ValidateAsync(WsFederationMessage message, ClaimsPrincipal user)
         {
             //Logger.Info("Start WS-Federation signin request validation");
             var result = new SignInValidationResult
             {
-                SignInRequestMessage = message
+                WsFederationMessage = message
             };
             
             // check client
-            var client = await _clients.FindEnabledClientByIdAsync(message.Realm);
+            var client = await _clients.FindEnabledClientByIdAsync(message.Wtrealm);
 
             if (client == null)
             {
-                LogError("Client not found: " + message.Realm, result);
+                LogError("Client not found: " + message.Wtrealm, result);
 
                 return new SignInValidationResult
                 {
@@ -58,7 +58,7 @@ namespace IdentityServer4.WsFederation.Validation
             result.ReplyUrl = client.RedirectUris.First();
 
             // check if additional relying party settings exist
-            var rp = await _relyingParties.FindRelyingPartyByRealm(message.Realm);
+            var rp = await _relyingParties.FindRelyingPartyByRealm(message.Wtrealm);
             if (rp == null)
             {
                 rp = new RelyingParty
