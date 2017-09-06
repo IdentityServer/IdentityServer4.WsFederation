@@ -2,6 +2,8 @@
 using IdentityServer4.Models;
 using System.Collections.Generic;
 using static IdentityServer4.IdentityServerConstants;
+using IdentityServer4.WsFederation.Stores;
+using System.Security.Claims;
 
 namespace IdentityServer4.WsFederation
 {
@@ -40,6 +42,21 @@ namespace IdentityServer4.WsFederation
 
                     AllowedScopes = { "openid", "profile" }
                 }
+            };
+        }
+        public static IEnumerable<RelyingParty> GetRelyingParties()
+        {
+            return new[]
+            {
+                new RelyingParty
+                {
+                    Realm = "urn:owinrp",
+                    ClaimMapping = {
+                        { JwtClaimTypes.Subject , ClaimTypes.NameIdentifier },
+                        { JwtClaimTypes.Name , ClaimTypes.Name },
+                        { JwtClaimTypes.Email , ClaimTypes.Email },
+                    },
+                },
             };
         }
     }

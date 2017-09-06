@@ -32,5 +32,16 @@ namespace IdentityServer4.WsFederation
             public const string UserName = "http://schemas.microsoft.com/ws/2006/05/identitymodel/tokens/UserName";
             public const string X509Certificate = "http://schemas.microsoft.com/ws/2006/05/identitymodel/tokens/X509Certificate";
         }
+
+        public const string Xmlns = "xmlns";
+
+        public static class Prefixes
+        {
+            public const string Wsu = "wsu";
+            public const string Xsi = "xsi";
+            public const string Fed = "fed";
+            public const string Wsa = "wsa";
+            public const string Trust = "t";
+        }
     }
 }

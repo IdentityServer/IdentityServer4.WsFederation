@@ -21,6 +21,9 @@ using IdentityServer4.Configuration;
 using IdentityServer4.WsFederation.Stores;
 using Microsoft.IdentityModel.Protocols.WsFederation;
 using System.Net;
+using System.Collections.Generic;
+using Microsoft.Net.Http.Headers;
+using System.Linq;
 
 namespace IdentityServer4.WsFederation.Tests
 {
@@ -51,11 +54,13 @@ namespace IdentityServer4.WsFederation.Tests
         {
             var startupAssembly = typeof(Startup).GetTypeInfo().Assembly;
             var wsFedController = typeof(WsFederationController).GetTypeInfo().Assembly;
+            var accountController = typeof(FakeAccountController).GetTypeInfo().Assembly;
 
             // Inject a custom application part manager. Overrides AddMvcCore() because that uses TryAdd().
             var manager = new ApplicationPartManager();
             manager.ApplicationParts.Add(new AssemblyPart(startupAssembly));
             manager.ApplicationParts.Add(new AssemblyPart(wsFedController));
+            manager.ApplicationParts.Add(new AssemblyPart(accountController));
 
             manager.FeatureProviders.Add(new ControllerFeatureProvider());
             manager.FeatureProviders.Add(new ViewComponentFeatureProvider());
@@ -71,7 +76,7 @@ namespace IdentityServer4.WsFederation.Tests
                 .AddSigningCredential(TestCert.LoadSigningCredentials())
                 .AddInMemoryClients(Config.GetClients())
                 .AddInMemoryIdentityResources(Config.GetIdentityResources())
-                // .AddInMemoryRelyingParties(new RelyingParty[] {})
+                .AddInMemoryRelyingParties(Config.GetRelyingParties())
                 .AddWsFederation();
             services.TryAddTransient<IHttpContextAccessor, HttpContextAccessor>();
             services.AddMvc();
@@ -100,6 +105,46 @@ namespace IdentityServer4.WsFederation.Tests
             Assert.Equal(HttpStatusCode.Found, response.StatusCode);
             var expectedLocation = "/account/login?returnUrl=%2Fwsfederation%3Fwtrealm%3Durn%253Aowinrp%26wreply%3Dhttp%253A%252F%252Flocalhost%253A10313%252F%26wa%3Dwsignin1.0";
             Assert.Equal(expectedLocation, response.Headers.Location.OriginalString);
+        }
+
+        [Fact]
+        public async Task WsFederation_login_and_return_assertion_success()
+        {
+            var loginUrl = "/account/login?returnUrl=%2Fwsfederation%3Fwtrealm%3Durn%253Aowinrp%26wreply%3Dhttp%253A%252F%252Flocalhost%253A10313%252F%26wa%3Dwsignin1.0";
+            var response = await _client.GetAsync(loginUrl);
+            Assert.Equal(HttpStatusCode.Found, response.StatusCode);
+            var expectedLocation = "/wsfederation?wtrealm=urn%3Aowinrp&wreply=http%3A%2F%2Flocalhost%3A10313%2F&wa=wsignin1.0";
+            Assert.Equal(expectedLocation, response.Headers.Location.OriginalString);
+        }
+
+        [Fact]
+        public async Task WsFederation_login_return_assertion_success()
+        {
+            var loginUrl = "/account/login?returnUrl=%2Fwsfederation%3Fwtrealm%3Durn%253Aowinrp%26wreply%3Dhttp%253A%252F%252Flocalhost%253A10313%252F%26wa%3Dwsignin1.0";
+            var response = await _client.GetAsync(loginUrl);
+            Assert.Equal(HttpStatusCode.Found, response.StatusCode);
+            var wsEndpointUrl = "/wsfederation?wtrealm=urn%3Aowinrp&wreply=http%3A%2F%2Flocalhost%3A10313%2F&wa=wsignin1.0";
+            Assert.Equal(wsEndpointUrl, response.Headers.Location.OriginalString);
+            var request = GetRequest(wsEndpointUrl, response);
+            var wsResponse = await _client.SendAsync(request);
+            Assert.Equal(HttpStatusCode.OK, wsResponse.StatusCode);
+            var contentAsText = await wsResponse.Content.ReadAsStringAsync();
+            Assert.Contains("action=\"http%3A%2F%2Flocalhost%3A10313%2F\"", contentAsText);
+            Assert.Equal(HttpStatusCode.OK, wsResponse.StatusCode);
+        }
+
+        private HttpRequestMessage GetRequest(string path, HttpResponseMessage response)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, path);
+            IEnumerable<string> values;
+            if (response.Headers.TryGetValues("Set-Cookie", out values))
+            {
+                var setCookieHeaderValues = SetCookieHeaderValue.ParseList(values.ToList());
+                var cookiesValues = setCookieHeaderValues.Select(c => new CookieHeaderValue(c.Name, c.Value).ToString());
+                var cookieHeaderValue = string.Join("; ", cookiesValues);
+                request.Headers.Add("Cookie", cookieHeaderValue);
+            }
+            return request;
         }
     }
 }

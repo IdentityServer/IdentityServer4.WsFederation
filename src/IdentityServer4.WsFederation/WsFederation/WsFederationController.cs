@@ -51,7 +51,6 @@ namespace IdentityServer4.WsFederation
                 var entity = await _metadata.GenerateAsync(Url.Action("Index", "WsFederation", null, Request.Scheme, Request.Host.Value));
                 return new MetadataResult(entity);
             }
-            
 
             var url = Url.Action("Index", "WsFederation", null, Request.Scheme, Request.Host.Value) + Request.QueryString;
             _logger.LogDebug("Start WS-Federation request: {url}", url);

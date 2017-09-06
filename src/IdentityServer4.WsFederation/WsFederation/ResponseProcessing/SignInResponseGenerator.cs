@@ -101,6 +101,7 @@ namespace IdentityServer4.WsFederation
                     if (outboundClaim.Type == ClaimTypes.NameIdentifier)
                     {
                         outboundClaim.Properties[ClaimProperties.SamlNameIdentifierFormat] = result.RelyingParty.SamlNameIdentifierFormat;
+                        outboundClaims.RemoveAll(c => c.Type == ClaimTypes.NameIdentifier); //remove previesly added nameid claim
                     }
 
                     outboundClaims.Add(outboundClaim);
@@ -150,6 +151,7 @@ namespace IdentityServer4.WsFederation
                 SigningCredentials = new SigningCredentials(key, result.RelyingParty.SignatureAlgorithm, result.RelyingParty.DigestAlgorithm),
                 Subject = outgoingSubject,
                 Issuer = _contextAccessor.HttpContext.GetIdentityServerIssuerUri(),
+
                 //TODO: not found in aspnet core version
                 // TokenType = result.RelyingParty.TokenType
                 // ReplyToAddress = result.Client.RedirectUris.First(),
@@ -170,18 +172,19 @@ namespace IdentityServer4.WsFederation
         private WsFederationMessage CreateResponse(SignInValidationResult validationResult, SecurityToken token)
         {
             var handler = CreateTokenHandler();
-            var responseMessage = new WsFederationMessage{
+            var rstr = new RequestSecurityTokenResponse
+            {
+                AppliesTo = validationResult.Client.ClientId,
+                // Context = validationResult.WsFederationMessage.Context,
+                ReplyTo = validationResult.ReplyUrl,
+                RequestedSecurityToken = handler.WriteToken(token),
+            };
+            var responseMessage = new WsFederationMessage {
+                IssuerAddress = validationResult.Client.RedirectUris.First(),
                 Wa = Microsoft.IdentityModel.Protocols.WsFederation.WsFederationConstants.WsFederationActions.SignIn,
-                Wresult = handler.WriteToken(token),
+                Wresult = rstr.Serialize(),
                 Wctx = Guid.NewGuid().ToString(),
             };
-            // var rstr = new RequestSecurityTokenResponse
-            // {
-            //     AppliesTo = new EndpointReference(validationResult.Client.ClientId),
-            //     Context = validationResult.SignInRequestMessage.Context,
-            //     ReplyTo = validationResult.ReplyUrl,
-            //     RequestedSecurityToken = new RequestedSecurityToken(token)
-            // };
 
             // var serializer = new WSFederationSerializer(
             //     new WSTrust13RequestSerializer(),

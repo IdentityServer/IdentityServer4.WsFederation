@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
+using Microsoft.IdentityModel.Tokens;
 
 namespace IdentityServer4.WsFederation.Stores
 { 
@@ -11,10 +12,10 @@ namespace IdentityServer4.WsFederation.Stores
     {
         public string Realm { get; set; }
 
-        public string TokenType { get; set; }
-        public string DigestAlgorithm { get; set; }
-        public string SignatureAlgorithm { get; set; }
-        public string SamlNameIdentifierFormat { get; set; }
+        public string TokenType { get; set; } =  WsFederationConstants.TokenTypes.Saml11TokenProfile11;
+        public string DigestAlgorithm { get; set; } = SecurityAlgorithms.Sha256Digest;
+        public string SignatureAlgorithm { get; set; } = SecurityAlgorithms.RsaSha256Signature;
+        public string SamlNameIdentifierFormat { get; set; } = WsFederationConstants.SamlNameIdentifierFormats.UnspecifiedString;
         public X509Certificate2 EncryptionCertificate { get; set; }
 
         public IDictionary<string, string> ClaimMapping { get; set; } = new Dictionary<string, string>();

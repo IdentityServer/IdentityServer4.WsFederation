@@ -25,6 +25,12 @@ public static class WsFederationMetadataSerializerExtensions
         if (configuration == null)
             throw new ArgumentNullException(nameof(configuration));
 
+        if (string.IsNullOrEmpty(configuration.Issuer))
+            throw XmlUtil.LogWriteException(nameof(configuration.Issuer) + " is null or empty");
+
+        if (string.IsNullOrEmpty(configuration.TokenEndpoint))
+            throw XmlUtil.LogWriteException(nameof(configuration.TokenEndpoint) + " is null or empty");
+
         var securityKey = configuration.SigningKeys.FirstOrDefault() as X509SecurityKey;
         var entityDescriptorId = "_" + Guid.NewGuid().ToString();
         EnvelopedSignatureWriter envelopeWriter = null;
@@ -39,7 +45,6 @@ public static class WsFederationMetadataSerializerExtensions
         }
         writer.WriteStartDocument();
 
-        //TODO: Add Signature
         // <EntityDescriptor>
         writer.WriteStartElement(Elements.EntityDescriptor, Namespaces.MetadataNamespace);
         // @entityID
@@ -66,8 +71,8 @@ public static class WsFederationMetadataSerializerExtensions
             throw new ArgumentNullException(nameof(configuration));
 
         // <RoleDescriptorr>
-        writer.WriteStartElement("xsi", Elements.RoleDescriptor, XmlSignatureConstants.XmlSchemaNamespace);
-        writer.WriteAttributeString("xmlns", "fed", null, WsFederationConstants.Namespaces.FederationNamespace);
+        writer.WriteStartElement(IdentityServer4.WsFederation.WsFederationConstants.Prefixes.Xsi, Elements.RoleDescriptor, XmlSignatureConstants.XmlSchemaNamespace);
+        writer.WriteAttributeString(IdentityServer4.WsFederation.WsFederationConstants.Xmlns, IdentityServer4.WsFederation.WsFederationConstants.Prefixes.Fed, null, WsFederationConstants.Namespaces.FederationNamespace);
         writer.WriteAttributeString("protocolSupportEnumeration", WsFederationConstants.Namespaces.FederationNamespace);
         writer.WriteStartAttribute(Attributes.Type, XmlSignatureConstants.XmlSchemaNamespace);
         writer.WriteQualifiedName(Types.SecurityTokenServiceType, WsFederationConstants.Namespaces.FederationNamespace);
@@ -75,10 +80,11 @@ public static class WsFederationMetadataSerializerExtensions
 
         WriteKeyDescriptorForSigning(configuration, writer);
 
-        WriteSecurityTokenEndpoint(configuration, writer);
+        //TODO: add tokenTypesOffered
+        //     tokenService.TokenTypesOffered.Add(new Uri("http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV1.1"));
+        //     tokenService.TokenTypesOffered.Add(new Uri("http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0"));
 
-        // else if (reader.IsStartElement())
-        //     reader.ReadOuterXml();
+        WriteSecurityTokenEndpoint(configuration, writer);
 
         // </RoleDescriptorr>
         writer.WriteEndElement();
@@ -92,7 +98,7 @@ public static class WsFederationMetadataSerializerExtensions
         // var typeQualifiedName = new XmlQualifiedName(Types.SecurityTokenServiceType, Namespaces.FederationNamespace);
 
         // <EndpointReference>
-        writer.WriteStartElement("wsa", Elements.EndpointReference, Namespaces.AddressingNamspace);  // EndpointReference
+        writer.WriteStartElement(IdentityServer4.WsFederation.WsFederationConstants.Prefixes.Wsa, Elements.EndpointReference, Namespaces.AddressingNamspace);  // EndpointReference
 
         // <Address>
         writer.WriteStartElement(Elements.Address, Namespaces.AddressingNamspace);  // Address
