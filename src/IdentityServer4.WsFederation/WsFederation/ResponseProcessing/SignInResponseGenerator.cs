@@ -13,8 +13,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-// using System.IdentityModel.Protocols.WSTrust;
-// using System.IdentityModel.Services;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.IdentityModel.Tokens.Saml;
 using Microsoft.IdentityModel.Protocols;
@@ -23,6 +21,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Xml;
+using Microsoft.IdentityModel.Tokens.Saml2;
 
 namespace IdentityServer4.WsFederation
 {
@@ -90,7 +89,7 @@ namespace IdentityServer4.WsFederation
             
             // map outbound claims
             var nameid = new Claim(ClaimTypes.NameIdentifier, result.User.GetSubjectId());
-            nameid.Properties[ClaimProperties.SamlNameIdentifierFormat] = result.RelyingParty.SamlNameIdentifierFormat;
+            nameid.Properties[Microsoft.IdentityModel.Tokens.Saml.ClaimProperties.SamlNameIdentifierFormat] = result.RelyingParty.SamlNameIdentifierFormat;
 
             var outboundClaims = new List<Claim> { nameid };
             foreach (var claim in ctx.IssuedClaims)
@@ -100,7 +99,7 @@ namespace IdentityServer4.WsFederation
                     var outboundClaim = new Claim(result.RelyingParty.ClaimMapping[claim.Type], claim.Value);
                     if (outboundClaim.Type == ClaimTypes.NameIdentifier)
                     {
-                        outboundClaim.Properties[ClaimProperties.SamlNameIdentifierFormat] = result.RelyingParty.SamlNameIdentifierFormat;
+                        outboundClaim.Properties[Microsoft.IdentityModel.Tokens.Saml.ClaimProperties.SamlNameIdentifierFormat] = result.RelyingParty.SamlNameIdentifierFormat;
                         outboundClaims.RemoveAll(c => c.Type == ClaimTypes.NameIdentifier); //remove previesly added nameid claim
                     }
 
@@ -151,10 +150,6 @@ namespace IdentityServer4.WsFederation
                 SigningCredentials = new SigningCredentials(key, result.RelyingParty.SignatureAlgorithm, result.RelyingParty.DigestAlgorithm),
                 Subject = outgoingSubject,
                 Issuer = _contextAccessor.HttpContext.GetIdentityServerIssuerUri(),
-
-                //TODO: not found in aspnet core version
-                // TokenType = result.RelyingParty.TokenType
-                // ReplyToAddress = result.Client.RedirectUris.First(),
             };
 
             if (result.RelyingParty.EncryptionCertificate != null)
@@ -165,19 +160,22 @@ namespace IdentityServer4.WsFederation
                 descriptor.EncryptingCredentials = new EncryptingCredentials(encryptionKey, result.RelyingParty.SignatureAlgorithm, result.RelyingParty.DigestAlgorithm);
             }
 
-            var handler = CreateTokenHandler();
+            var handler = CreateTokenHandler(result.RelyingParty.TokenType);
             return handler.CreateToken(descriptor);
         }
 
         private WsFederationMessage CreateResponse(SignInValidationResult validationResult, SecurityToken token)
         {
-            var handler = CreateTokenHandler();
+            var handler = CreateTokenHandler(validationResult.RelyingParty.TokenType);
             var rstr = new RequestSecurityTokenResponse
             {
+                CreatedAt = token.ValidFrom,
+                ExpiresAt = token.ValidTo,
                 AppliesTo = validationResult.Client.ClientId,
-                // Context = validationResult.WsFederationMessage.Context,
+                Context = validationResult.WsFederationMessage.Wctx,
                 ReplyTo = validationResult.ReplyUrl,
-                RequestedSecurityToken = handler.WriteToken(token),
+                RequestedSecurityToken = token,
+                SecurityTokenHandler = handler,
             };
             var responseMessage = new WsFederationMessage {
                 IssuerAddress = validationResult.Client.RedirectUris.First(),
@@ -185,32 +183,20 @@ namespace IdentityServer4.WsFederation
                 Wresult = rstr.Serialize(),
                 Wctx = Guid.NewGuid().ToString(),
             };
-
-            // var serializer = new WSFederationSerializer(
-            //     new WSTrust13RequestSerializer(),
-            //     new WSTrust13ResponseSerializer());
-
-            // var mgr = SecurityTokenHandlerCollectionManager.CreateEmptySecurityTokenHandlerCollectionManager();
-            // mgr[SecurityTokenHandlerCollectionManager.Usage.Default] = CreateSupportedSecurityTokenHandler();
-
-            // // var message = new SamlMessage
-            // var responseMessage = new SignInResponseMessage(
-            //     new Uri(validationResult.ReplyUrl),
-            //     rstr,
-            //     serializer,
-            //     new WSTrustSerializationContext(mgr));
-
             return responseMessage;
         }
 
-        private SecurityTokenHandler CreateTokenHandler()
+        private SecurityTokenHandler CreateTokenHandler(string tokenType)
         {
-            var list = new List<SecurityTokenHandler>{
-                new SamlSecurityTokenHandler(),
-                // new EncryptedSecurityTokenHandler(),
-                // new Saml2SecurityTokenHandler()
-            };
-            return list.First();
+            switch (tokenType)
+            {
+                case WsFederationConstants.TokenTypes.Saml11TokenProfile11:
+                    return new SamlSecurityTokenHandler();
+                case WsFederationConstants.TokenTypes.Saml2TokenProfile11:
+                    return new Saml2SecurityTokenHandler();
+                default:
+                    throw new NotImplementedException($"TokenType: {tokenType} not implemented");
+            }
         }
     }
 }

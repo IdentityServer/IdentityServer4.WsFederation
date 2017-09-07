@@ -5,9 +5,6 @@
 using IdentityServer4.Services;
 using Microsoft.AspNetCore.Http;
 using System;
-// using System.IdentityModel.Metadata;
-// using System.IdentityModel.Protocols.WSTrust;
-// using System.IdentityModel.Tokens;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Protocols.WsFederation;
@@ -33,28 +30,10 @@ namespace IdentityServer4.WsFederation
         {
             var signingKey = (await _keys.GetSigningCredentialsAsync()).Key as X509SecurityKey;
             var cert = signingKey.Certificate;
-
-            // var applicationDescriptor = GetApplicationDescriptor(wsfedEndpoint, cert);
-            // var tokenServiceDescriptor = GetTokenServiceDescriptor(wsfedEndpoint, cert);
-
             var issuer = _contextAccessor.HttpContext.GetIdentityServerIssuerUri();
-
-            // entity.SigningCredentials = new X509SigningCredentials(cert);
-            // entity.RoleDescriptors.Add(applicationDescriptor);
-            // entity.RoleDescriptors.Add(tokenServiceDescriptor);
-
             var config = new WsFederationConfiguration()
             {
                 Issuer = issuer,
-                // Signature = new Signature(new SignedInfo())
-                // {
-                //     KeyInfo = new KeyInfo
-                //     {
-                //         CertificateData = X509CertificateData1, //base64 data
-                //         Kid = X509CertificateKeyId1 // thumbprint
-                //     },
-                //     SignatureValue = AADCommonMetadataSignatureValue,
-                // },
                 TokenEndpoint = wsfedEndpoint,
             };
             config.SigningKeys.Add(signingKey);

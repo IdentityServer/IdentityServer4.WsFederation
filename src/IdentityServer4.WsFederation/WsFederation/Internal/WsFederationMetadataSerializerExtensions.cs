@@ -101,7 +101,7 @@ public static class WsFederationMetadataSerializerExtensions
         writer.WriteStartElement(IdentityServer4.WsFederation.WsFederationConstants.Prefixes.Wsa, Elements.EndpointReference, Namespaces.AddressingNamspace);  // EndpointReference
 
         // <Address>
-        writer.WriteStartElement(Elements.Address, Namespaces.AddressingNamspace);  // Address
+        writer.WriteStartElement(Elements.Address, Namespaces.AddressingNamspace);
         writer.WriteString(configuration.TokenEndpoint);
         // </Address>
         writer.WriteEndElement();

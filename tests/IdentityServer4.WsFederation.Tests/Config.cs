@@ -51,6 +51,7 @@ namespace IdentityServer4.WsFederation
                 new RelyingParty
                 {
                     Realm = "urn:owinrp",
+                    TokenType = WsFederationConstants.TokenTypes.Saml11TokenProfile11,
                     ClaimMapping = {
                         { JwtClaimTypes.Subject , ClaimTypes.NameIdentifier },
                         { JwtClaimTypes.Name , ClaimTypes.Name },
