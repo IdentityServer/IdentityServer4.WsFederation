@@ -26,13 +26,12 @@ namespace IdentityServer4.WsFederation
         public string Serialize()
         {
             var ms = new MemoryStream();
-            XmlWriter writer = XmlWriter.Create(ms);
+            XmlWriterSettings settings = new XmlWriterSettings();
+            settings.Encoding = new UTF8Encoding(false);
+            XmlWriter writer = XmlWriter.Create(ms, settings);
             // <t:RequestSecurityTokenResponse>
             writer.WriteStartElement(WsFederationConstants.Prefixes.Trust, WsTrustConstants.Elements.RequestSecurityTokenResponse, WsTrustConstants.Namespaces.WsTrust2005);
             // TODO: add @Context
-
-            // <t:RequestedSecurityToken>
-            writer.WriteStartElement(WsTrustConstants.Elements.RequestedSecurityToken, WsTrustConstants.Namespaces.WsTrust2005);
 
             // <t:Lifetime>
             writer.WriteStartElement(WsTrustConstants.Elements.Lifetime, WsTrustConstants.Namespaces.WsTrust2005);
@@ -60,10 +59,13 @@ namespace IdentityServer4.WsFederation
             writer.WriteEndElement();
             // </wsp:AppliesTo>
 
+            // <t:RequestedSecurityToken>
+            writer.WriteStartElement(WsTrustConstants.Elements.RequestedSecurityToken, WsTrustConstants.Namespaces.WsTrust2005);
+
             // write assertion
             SecurityTokenHandler.WriteToken(writer, RequestedSecurityToken);
 
-            // <t:RequestedSecurityToken>
+            // </t:RequestedSecurityToken>
             writer.WriteEndElement();
 
             // </t:RequestSecurityTokenResponse>
@@ -142,7 +144,8 @@ namespace IdentityServer4.WsFederation
 //                         </t:RequestSecurityTokenResponse>";
             writer.Flush();
             ms.Position = 0;
-            return Encoding.UTF8.GetString(ms.ToArray());
+            var result = Encoding.UTF8.GetString(ms.ToArray());
+            return result;
         }
     }
 }

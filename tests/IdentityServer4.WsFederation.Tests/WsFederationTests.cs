@@ -24,6 +24,8 @@ using System.Net;
 using System.Collections.Generic;
 using Microsoft.Net.Http.Headers;
 using System.Linq;
+using System.Text.Encodings.Web;
+using Microsoft.IdentityModel.Tokens.Saml;
 
 namespace IdentityServer4.WsFederation.Tests
 {
@@ -130,7 +132,24 @@ namespace IdentityServer4.WsFederation.Tests
             Assert.Equal(HttpStatusCode.OK, wsResponse.StatusCode);
             var contentAsText = await wsResponse.Content.ReadAsStringAsync();
             Assert.Contains("action=\"http%3A%2F%2Flocalhost%3A10313%2F\"", contentAsText);
-            Assert.Equal(HttpStatusCode.OK, wsResponse.StatusCode);
+            var wreturn = ExtractInBetween(contentAsText, "wresult\" value=\"", "\"");
+            Assert.False(wreturn.StartsWith("%EF%BB%BF")); //don't start with BOM (Byte Order Mark)
+            var wsMessage = new WsFederationMessage 
+            {
+                Wresult = Uri.UnescapeDataString(wreturn),
+            };
+            var tokenString = wsMessage.GetToken();
+            var handler = new SamlSecurityTokenHandler();
+            var canReadToken = handler.CanReadToken(tokenString);
+            Assert.True(canReadToken);
+        }
+
+        private string ExtractInBetween(string source, string startStr, string endStr)
+        {
+            var startIndex = source.IndexOf(startStr) + startStr.Length;
+            var length = source.IndexOf(endStr, startIndex) - startIndex;
+            var result = source.Substring(startIndex, length);
+            return result;
         }
 
         private HttpRequestMessage GetRequest(string path, HttpResponseMessage response)
