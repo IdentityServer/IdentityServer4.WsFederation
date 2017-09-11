@@ -17,7 +17,7 @@ namespace IdentityServer4.WsFederation
 {
     public class WsFederationController : Controller
     {
-        private readonly IClientSessionService _clientSessionService;
+        private readonly IUserSession _sessionService;
         private readonly SignInResponseGenerator _generator;
         private readonly ILogger<WsFederationController> _logger;
         private readonly MetadataResponseGenerator _metadata;
@@ -29,14 +29,14 @@ namespace IdentityServer4.WsFederation
             SignInValidator signinValidator, 
             IdentityServerOptions options,
             SignInResponseGenerator generator,
-            IClientSessionService clientSessionService,
+            IUserSession sessionService,
             ILogger<WsFederationController> logger)
         {
             _metadata = metadata;
             _signinValidator = signinValidator;
             _options = options;
             _generator = generator;
-            _clientSessionService = clientSessionService;
+            _sessionService = sessionService;
 
             _logger = logger;
         }
@@ -57,7 +57,7 @@ namespace IdentityServer4.WsFederation
             _logger.LogDebug("Start WS-Federation request: {url}", url);
 
             WSFederationMessage message;
-            var user = await HttpContext.GetIdentityServerUserAsync();
+            var user = User;
 
             if (WSFederationMessage.TryCreateFromUri(new Uri(url), out message))
             {
@@ -80,7 +80,7 @@ namespace IdentityServer4.WsFederation
         
         private async Task<IActionResult> ProcessSignInAsync(SignInRequestMessage signin, ClaimsPrincipal user)
         {
-            if (user != null)
+            if (user.Identity.IsAuthenticated)
             {
                 _logger.LogDebug("User in WS-Federation signin request: {subjectId}", user.GetSubjectId());
             }
@@ -111,7 +111,7 @@ namespace IdentityServer4.WsFederation
             {
                 // create protocol response
                 var responseMessage = await _generator.GenerateResponseAsync(result);
-                await _clientSessionService.AddClientIdAsync(result.Client.ClientId);
+                await _sessionService.AddClientIdAsync(result.Client.ClientId);
                 
                 return new SignInResult(responseMessage);
             }

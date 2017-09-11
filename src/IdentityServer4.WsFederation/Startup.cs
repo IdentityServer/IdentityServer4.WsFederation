@@ -10,11 +10,6 @@ namespace IdentityServer4.WsFederation
 {
     public class Startup
     {
-        public Startup(ILoggerFactory loggerFactory)
-        {
-            loggerFactory.AddConsole(LogLevel.Information);
-        }
-
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
@@ -28,24 +23,23 @@ namespace IdentityServer4.WsFederation
                 .AddInMemoryClients(Config.GetClients())
                 .AddTestUsers(TestUsers.Users)
                 .AddWsFederation();
+
+            services.AddAuthentication()
+                .AddGoogle("Google", "Google", options =>
+                {
+                    options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
+                    options.ClientId = "708996912208-9m4dkjb5hscn7cjrn5u0r4tbgkbj1fko.apps.googleusercontent.com";
+                    options.ClientSecret = "wdfPY6t8H8cecgjlxud__4Gh";
+                });
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             app.UseDeveloperExceptionPage();
             
-            app.UseIdentityServer();
-
-            // middleware for google authentication
-            app.UseGoogleAuthentication(new GoogleOptions
-            {
-                AuthenticationScheme = "Google",
-                SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme,
-                ClientId = "708996912208-9m4dkjb5hscn7cjrn5u0r4tbgkbj1fko.apps.googleusercontent.com",
-                ClientSecret = "wdfPY6t8H8cecgjlxud__4Gh"
-            });
-
             app.UseStaticFiles();
+
+            app.UseIdentityServer();
             app.UseMvcWithDefaultRoute();
         }
     }

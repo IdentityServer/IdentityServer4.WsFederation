@@ -35,7 +35,7 @@ namespace IdentityServer4.WsFederation
                     ProtocolType = ProtocolTypes.WsFederation,
 
                     RedirectUris = { "http://localhost:10313/" },
-                    LogoutUri = "http://localhost:10313/home/signoutcleanup",
+                    FrontChannelLogoutUri = "http://localhost:10313/home/signoutcleanup",
                     IdentityTokenLifetime = 36000,
 
                     AllowedScopes = { "openid", "profile" }

@@ -47,7 +47,7 @@ namespace IdentityServer4.WsFederation
 
         public async Task<AuthorizationRequest> ParseAsync(string returnUrl)
         {
-            var user = await _contextAccessor.HttpContext.GetIdentityServerUserAsync();
+            var user = _contextAccessor.HttpContext.User;
 
             var signInMessage = GetSignInRequestMessage(returnUrl);
             if (signInMessage == null) return null;
