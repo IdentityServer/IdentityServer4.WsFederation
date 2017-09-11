@@ -56,19 +56,14 @@ namespace IdentityServer4.WsFederation
             var url = Url.Action("Index", "WsFederation", null, Request.Scheme, Request.Host.Value) + Request.QueryString;
             _logger.LogDebug("Start WS-Federation request: {url}", url);
 
-            WSFederationMessage message;
-            var user = User;
-
-            if (WSFederationMessage.TryCreateFromUri(new Uri(url), out message))
+            if (WSFederationMessage.TryCreateFromUri(new Uri(url), out WSFederationMessage message))
             {
-                var signin = message as SignInRequestMessage;
-                if (signin != null)
+                if (message is SignInRequestMessage signin)
                 {
-                    return await ProcessSignInAsync(signin, user);
+                    return await ProcessSignInAsync(signin, User);
                 }
 
-                var signout = message as SignOutRequestMessage;
-                if (signout != null)
+                if (message is SignOutRequestMessage signout)
                 {
                     return ProcessSignOutAsync(signout);
                 }
