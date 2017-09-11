@@ -167,9 +167,14 @@ namespace IdentityServer4.WsFederation
                 RequestedSecurityToken = new RequestedSecurityToken(token)
             };
 
+            //var serializer = new WSFederationSerializer(
+            //    new WSTrust13RequestSerializer(),
+            //    new WSTrust13ResponseSerializer());
+
+            // the asp.net core MW does currently not support WS-Trust 1.3
             var serializer = new WSFederationSerializer(
-                new WSTrust13RequestSerializer(),
-                new WSTrust13ResponseSerializer());
+                new WSTrustFeb2005RequestSerializer(),
+                new WSTrustFeb2005ResponseSerializer());
 
             var mgr = SecurityTokenHandlerCollectionManager.CreateEmptySecurityTokenHandlerCollectionManager();
             mgr[SecurityTokenHandlerCollectionManager.Usage.Default] = CreateSupportedSecurityTokenHandler();

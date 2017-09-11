@@ -39,6 +39,17 @@ namespace IdentityServer4.WsFederation
                     IdentityTokenLifetime = 36000,
 
                     AllowedScopes = { "openid", "profile" }
+                },
+                new Client
+                {
+                    ClientId = "urn:aspnetcorerp",
+                    ProtocolType = ProtocolTypes.WsFederation,
+
+                    RedirectUris = { "http://localhost:10314/" },
+                    FrontChannelLogoutUri = "http://localhost:10314/account/signoutcleanup",
+                    IdentityTokenLifetime = 36000,
+
+                    AllowedScopes = { "openid", "profile" }
                 }
             };
         }
