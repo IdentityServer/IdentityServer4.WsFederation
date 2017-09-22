@@ -42,7 +42,7 @@ namespace IdentityServer4.WsFederation
             public const string Fed = "fed";
             public const string Wsa = "wsa";
             public const string Trust = "t";
-
+            public const string Wst = "wst";
             public const string Wsp = "wsp";
         }
     }

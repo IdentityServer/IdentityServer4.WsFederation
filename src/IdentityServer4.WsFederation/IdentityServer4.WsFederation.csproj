@@ -5,17 +5,20 @@
     <AssemblyName>IdentityServer4.WsFederation</AssemblyName>
     <PackageId>IdentityServer4.WsFederation</PackageId>
   </PropertyGroup>
-  <!-- <ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="../../../azure-identitymodel-extensions/src/Microsoft.IdentityModel.Protocols.WsFederation/Microsoft.IdentityModel.Protocols.WsFederation.csproj" />
     <ProjectReference Include="../../../azure-identitymodel-extensions/src/Microsoft.IdentityModel.Protocols/Microsoft.IdentityModel.Protocols.csproj" />
-  </ItemGroup> -->
+    <ProjectReference Include="../../../azure-identitymodel-extensions/src/Microsoft.IdentityModel.Tokens/Microsoft.IdentityModel.Tokens.csproj" />
+    <ProjectReference Include="../../../azure-identitymodel-extensions/src/Microsoft.IdentityModel.Tokens.Saml/Microsoft.IdentityModel.Tokens.Saml.csproj" />
+    <ProjectReference Include="../../../azure-identitymodel-extensions/src/Microsoft.IdentityModel.Xml/Microsoft.IdentityModel.Xml.csproj" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../../IdentityServer4/src/IdentityServer4/IdentityServer4.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0" />
-    <PackageReference Include="Microsoft.IdentityModel.Protocols" Version="5.2.0-preview1-408290725" />
-    <PackageReference Include="Microsoft.IdentityModel.Protocols.WsFederation" Version="5.2.0-preview1-408290725" />
+    <!-- <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0" /> -->
+    <!-- <PackageReference Include="Microsoft.IdentityModel.Protocols" Version="5.2.0-preview1-408290725" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.WsFederation" Version="5.2.0-preview1-408290725" /> -->
     <!-- <PackageReference Include="Microsoft.AspNetCore.Diagnostics" Version="1.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Server.IISIntegration" Version="1.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="1.1.1" />
@@ -26,5 +29,8 @@
     <!-- <PackageReference Include="Microsoft.IdentityModel.Protocols" Version="5.2.0-preview1-408290725" />
     <PackageReference Include="Microsoft.IdentityModel.Protocols.WsFederation" Version="5.2.0-preview1-408290725" />
     <PackageReference Include="System.Net.Http" Version="4.3.2" /> -->
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.0" />
   </ItemGroup>
 </Project>

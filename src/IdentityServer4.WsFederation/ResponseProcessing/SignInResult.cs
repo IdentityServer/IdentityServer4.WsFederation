@@ -21,7 +21,8 @@ namespace IdentityServer4.WsFederation
         public Task ExecuteResultAsync(ActionContext context)
         {
             context.HttpContext.Response.ContentType = "text/html";
-            return context.HttpContext.Response.WriteAsync(Message.BuildFormPost());
+            var message = Message.BuildFormPost();
+            return context.HttpContext.Response.WriteAsync(message);
         }
     }
 }

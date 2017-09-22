@@ -31,7 +31,7 @@ public static class WsFederationMetadataSerializerExtensions
         if (string.IsNullOrEmpty(configuration.TokenEndpoint))
             throw XmlUtil.LogWriteException(nameof(configuration.TokenEndpoint) + " is null or empty");
 
-        var securityKey = configuration.SigningKeys.FirstOrDefault() as X509SecurityKey;
+        X509SecurityKey securityKey = configuration.SigningKeys.FirstOrDefault() as X509SecurityKey;
         var entityDescriptorId = "_" + Guid.NewGuid().ToString();
         EnvelopedSignatureWriter envelopeWriter = null;
         if (securityKey != null)
@@ -43,6 +43,7 @@ public static class WsFederationMetadataSerializerExtensions
                 "#" + entityDescriptorId); 
             writer = envelopeWriter;
         }
+
         writer.WriteStartDocument();
 
         // <EntityDescriptor>
@@ -53,9 +54,7 @@ public static class WsFederationMetadataSerializerExtensions
         writer.WriteAttributeString("ID", entityDescriptorId);
 
         // if (envelopeWriter != null)
-        // {
         //     envelopeWriter.WriteSignature();
-        // }
 
         WriteSecurityTokenServiceTypeRoleDescriptor(configuration, writer);
 
@@ -80,9 +79,22 @@ public static class WsFederationMetadataSerializerExtensions
 
         WriteKeyDescriptorForSigning(configuration, writer);
 
-        //TODO: add tokenTypesOffered
-        //     tokenService.TokenTypesOffered.Add(new Uri("http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV1.1"));
-        //     tokenService.TokenTypesOffered.Add(new Uri("http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0"));
+        //TODO: rewrite to not using static values, use values from config instead 
+        var supportedTokenTypeUris = new[] {
+            "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV1.1",
+            "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0"
+        };
+        writer.WriteStartElement("TokenTypesOffered", WsFederationConstants.Namespaces.FederationNamespace);
+        foreach (string tokenTypeUri in supportedTokenTypeUris)
+        {
+            // <TokenType>
+            writer.WriteStartElement("TokenType", WsFederationConstants.Namespaces.FederationNamespace);
+            writer.WriteAttributeString("Uri", tokenTypeUri);
+            // </TokenType>
+            writer.WriteEndElement();
+        }
+        // </TokenTypesOffered>
+        writer.WriteEndElement();
 
         WriteSecurityTokenEndpoint(configuration, writer);
 

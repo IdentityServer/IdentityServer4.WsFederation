@@ -27,11 +27,16 @@ namespace IdentityServer4.WsFederation
         {
             var ms = new MemoryStream();
             XmlWriterSettings settings = new XmlWriterSettings();
+            settings.OmitXmlDeclaration = true;
             settings.Encoding = new UTF8Encoding(false);
             XmlWriter writer = XmlWriter.Create(ms, settings);
+
+            // <t:RequestSecurityTokenResponseCollection>
+            writer.WriteStartElement(WsFederationConstants.Prefixes.Trust, WsTrustConstants.Elements.RequestSecurityTokenResponseCollection, WsTrustConstants.Namespaces.WsTrust1_3);
             // <t:RequestSecurityTokenResponse>
-            writer.WriteStartElement(WsFederationConstants.Prefixes.Trust, WsTrustConstants.Elements.RequestSecurityTokenResponse, WsTrustConstants.Namespaces.WsTrust2005);
-            // TODO: add @Context
+            writer.WriteStartElement(WsFederationConstants.Prefixes.Trust, WsTrustConstants.Elements.RequestSecurityTokenResponse, WsTrustConstants.Namespaces.WsTrust1_3);
+            // @Context
+            writer.WriteAttributeString(WsTrustConstants.Attributes.Context, Context);
 
             // <t:Lifetime>
             writer.WriteStartElement(WsTrustConstants.Elements.Lifetime, WsTrustConstants.Namespaces.WsTrust2005);
@@ -69,6 +74,9 @@ namespace IdentityServer4.WsFederation
             writer.WriteEndElement();
 
             // </t:RequestSecurityTokenResponse>
+            writer.WriteEndElement();
+
+            // <t:RequestSecurityTokenResponseCollection>
             writer.WriteEndElement();
 
 //                  <t:RequestSecurityTokenResponse xmlns:t=""http://schemas.xmlsoap.org/ws/2005/02/trust"">

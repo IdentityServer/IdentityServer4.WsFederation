@@ -26,7 +26,8 @@ namespace IdentityServer4.WsFederation
             var ser = new WsFederationMetadataSerializer();
             var ms = new MemoryStream();
             XmlWriter writer = XmlWriter.Create(ms);
-            ser.WriteMetadata(writer, _config);
+            WsFederationMetadataSerializerExtensions.WriteMetadata(ser, writer, _config);
+            // ser.WriteMetadata(writer, _config);
             writer.Flush();
             ms.Position = 0;
             context.HttpContext.Response.ContentType = "application/xml";

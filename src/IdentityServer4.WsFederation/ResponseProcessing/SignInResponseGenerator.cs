@@ -181,7 +181,7 @@ namespace IdentityServer4.WsFederation
                 IssuerAddress = validationResult.Client.RedirectUris.First(),
                 Wa = Microsoft.IdentityModel.Protocols.WsFederation.WsFederationConstants.WsFederationActions.SignIn,
                 Wresult = rstr.Serialize(),
-                Wctx = Guid.NewGuid().ToString(),
+                Wctx = validationResult.WsFederationMessage.Wctx
             };
             return responseMessage;
         }
