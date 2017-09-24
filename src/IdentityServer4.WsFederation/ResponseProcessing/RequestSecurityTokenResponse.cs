@@ -39,7 +39,7 @@ namespace IdentityServer4.WsFederation
             writer.WriteAttributeString(WsTrustConstants.Attributes.Context, Context);
 
             // <t:Lifetime>
-            writer.WriteStartElement(WsTrustConstants.Elements.Lifetime, WsTrustConstants.Namespaces.WsTrust2005);
+            writer.WriteStartElement(WsTrustConstants.Elements.Lifetime, WsTrustConstants.Namespaces.WsTrust1_3);
 
             // <wsu:Created></wsu:Created>
             writer.WriteElementString(IdentityServer4.WsFederation.WsFederationConstants.Prefixes.Wsu, WsTrustConstants.Elements.Created, WsTrustConstants.Namespaces.Utility, CreatedAt.ToString(SamlConstants.GeneratedDateTimeFormat, DateTimeFormatInfo.InvariantInfo));
@@ -65,7 +65,7 @@ namespace IdentityServer4.WsFederation
             // </wsp:AppliesTo>
 
             // <t:RequestedSecurityToken>
-            writer.WriteStartElement(WsTrustConstants.Elements.RequestedSecurityToken, WsTrustConstants.Namespaces.WsTrust2005);
+            writer.WriteStartElement(WsTrustConstants.Elements.RequestedSecurityToken, WsTrustConstants.Namespaces.WsTrust1_3);
 
             // write assertion
             SecurityTokenHandler.WriteToken(writer, RequestedSecurityToken);
