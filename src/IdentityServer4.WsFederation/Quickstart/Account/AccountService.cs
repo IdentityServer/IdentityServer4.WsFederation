@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using System.Linq;
 using System.Threading.Tasks;
+using System;
 
 namespace IdentityServer4.Quickstart.UI
 {
@@ -18,7 +19,7 @@ namespace IdentityServer4.Quickstart.UI
         private readonly IClientStore _clientStore;
         private readonly IIdentityServerInteractionService _interaction;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private IAuthenticationSchemeProvider _schemeProvider;
+        private readonly IAuthenticationSchemeProvider _schemeProvider;
 
         public AccountService(
             IIdentityServerInteractionService interaction,
@@ -50,7 +51,10 @@ namespace IdentityServer4.Quickstart.UI
             var schemes = await _schemeProvider.GetAllSchemesAsync();
 
             var providers = schemes
-                .Where(x => x.DisplayName != null)
+                .Where(x => x.DisplayName != null || 
+                            (AccountOptions.WindowsAuthenticationEnabled && 
+                             x.Name.Equals(AccountOptions.WindowsAuthenticationSchemeName, StringComparison.OrdinalIgnoreCase))
+                )
                 .Select(x => new ExternalProvider
                 {
                     DisplayName = x.DisplayName,

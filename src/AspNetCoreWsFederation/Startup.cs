@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.WsFederation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,11 +15,13 @@ namespace AspNetCoreSecurity
         {
             services.AddMvc();
 
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+            services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = WsFederationDefaults.AuthenticationScheme;
+            })
                 .AddCookie(options =>
                 {
-                    options.LoginPath = "/account/login";
-
                     options.Cookie.Name = "aspnetcorewsfed";
                 })
                 .AddWsFederation(options =>
