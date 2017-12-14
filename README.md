@@ -123,4 +123,4 @@ public void Configuration(IAppBuilder app)
 
 ### SharePoint
 
-see https://www.identityserver.com/articles/identityserver4-ws-federation-and-sharepoint/
+see https://www.scottbrady91.com/Identity-Server/IdentityServer-4-SharePoint-Integration-using-WS-Federation
