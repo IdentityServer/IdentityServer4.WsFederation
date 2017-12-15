@@ -70,7 +70,8 @@ public static class WsFederationMetadataSerializerExtensions
             throw new ArgumentNullException(nameof(configuration));
 
         // <RoleDescriptorr>
-        writer.WriteStartElement(IdentityServer4.WsFederation.WsFederationConstants.Prefixes.Xsi, Elements.RoleDescriptor, XmlSignatureConstants.XmlSchemaNamespace);
+        writer.WriteStartElement(Elements.RoleDescriptor);
+        writer.WriteAttributeString(IdentityServer4.WsFederation.WsFederationConstants.Xmlns, IdentityServer4.WsFederation.WsFederationConstants.Prefixes.Xsi, null, XmlSignatureConstants.XmlSchemaNamespace);
         writer.WriteAttributeString(IdentityServer4.WsFederation.WsFederationConstants.Xmlns, IdentityServer4.WsFederation.WsFederationConstants.Prefixes.Fed, null, WsFederationConstants.Namespaces.FederationNamespace);
         writer.WriteAttributeString("protocolSupportEnumeration", WsFederationConstants.Namespaces.FederationNamespace);
         writer.WriteStartAttribute(Attributes.Type, XmlSignatureConstants.XmlSchemaNamespace);
@@ -97,6 +98,7 @@ public static class WsFederationMetadataSerializerExtensions
         writer.WriteEndElement();
 
         WriteSecurityTokenEndpoint(configuration, writer);
+        WritePassiveRequestorEndpoint(configuration, writer);
 
         // </RoleDescriptorr>
         writer.WriteEndElement();
@@ -105,9 +107,7 @@ public static class WsFederationMetadataSerializerExtensions
     private static void WriteSecurityTokenEndpoint(WsFederationConfiguration configuration, XmlWriter writer)
     {
         // <SecurityTokenServiceEndpoint>
-        writer.WriteStartElement(Elements.SecurityTokenEndpoint, Namespaces.FederationNamespace);
-        // writer.WriteAttributeString(Attributes.Type, XmlSignatureConstants.XmlSchemaNamespace,);
-        // var typeQualifiedName = new XmlQualifiedName(Types.SecurityTokenServiceType, Namespaces.FederationNamespace);
+        writer.WriteStartElement(IdentityServer4.WsFederation.WsFederationConstants.Elements.SecurityTokenServiceEndpoint, Namespaces.FederationNamespace);
 
         // <EndpointReference>
         writer.WriteStartElement(IdentityServer4.WsFederation.WsFederationConstants.Prefixes.Wsa, Elements.EndpointReference, Namespaces.AddressingNamspace);  // EndpointReference
@@ -122,6 +122,27 @@ public static class WsFederationMetadataSerializerExtensions
         writer.WriteEndElement();
 
         // </SecurityTokenServiceEndpoint>
+        writer.WriteEndElement();
+    }
+    
+    private static void WritePassiveRequestorEndpoint(WsFederationConfiguration configuration, XmlWriter writer)
+    {
+        // <PassiveRequestorEndpoint>
+        writer.WriteStartElement(IdentityServer4.WsFederation.WsFederationConstants.Elements.PassiveRequestorEndpoint, Namespaces.FederationNamespace);
+
+        // <EndpointReference>
+        writer.WriteStartElement(IdentityServer4.WsFederation.WsFederationConstants.Prefixes.Wsa, Elements.EndpointReference, Namespaces.AddressingNamspace);
+
+        // <Address>
+        writer.WriteStartElement(Elements.Address, Namespaces.AddressingNamspace);
+        writer.WriteString(configuration.TokenEndpoint);
+        // </Address>
+        writer.WriteEndElement();
+
+        // </EndpointReference>
+        writer.WriteEndElement();
+
+        // </PassiveRequestorEndpoint>
         writer.WriteEndElement();
     }
 

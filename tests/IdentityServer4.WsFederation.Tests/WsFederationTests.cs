@@ -131,7 +131,7 @@ namespace IdentityServer4.WsFederation.Tests
             var wsResponse = await _client.SendAsync(request);
             Assert.Equal(HttpStatusCode.OK, wsResponse.StatusCode);
             var contentAsText = await wsResponse.Content.ReadAsStringAsync();
-            Assert.Contains("action=\"http%3A%2F%2Flocalhost%3A10313%2F\"", contentAsText);
+            Assert.Contains("action=\"http://localhost:10313/\"", contentAsText);
             var wreturn = ExtractInBetween(contentAsText, "wresult\" value=\"", "\"");
             Assert.False(wreturn.StartsWith("%EF%BB%BF")); //don't start with BOM (Byte Order Mark)
             var wsMessage = new WsFederationMessage 

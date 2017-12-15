@@ -33,6 +33,18 @@ namespace IdentityServer4.WsFederation
             public const string X509Certificate = "http://schemas.microsoft.com/ws/2006/05/identitymodel/tokens/X509Certificate";
         }
 
+        public static class Attribures 
+        {
+            public const string Context = "Context";
+        }
+
+        public static class Elements 
+        {
+            public const string SecurityTokenServiceEndpoint = "SecurityTokenServiceEndpoint";
+            public const string RequestSecurityTokenResponseCollection = "RequestSecurityTokenResponseCollection";
+            public const string PassiveRequestorEndpoint = "PassiveRequestorEndpoint";
+        }
+
         public const string Xmlns = "xmlns";
 
         public static class Prefixes
