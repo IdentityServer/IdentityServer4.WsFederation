@@ -33,7 +33,7 @@ namespace IdentityServer4.WsFederation
             public const string X509Certificate = "http://schemas.microsoft.com/ws/2006/05/identitymodel/tokens/X509Certificate";
         }
 
-        public static class Attribures 
+        public static class Attributes 
         {
             public const string Context = "Context";
         }

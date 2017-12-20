@@ -37,7 +37,7 @@ namespace IdentityServer4.WsFederation
             // <t:RequestSecurityTokenResponse>
             writer.WriteStartElement(WsFederationConstants.Prefixes.Trust, WsTrustConstants.Elements.RequestSecurityTokenResponse, WsTrustConstants.Namespaces.WsTrust1_3);
             // @Context
-            writer.WriteAttributeString(WsFederationConstants.Attribures.Context, Context);
+            writer.WriteAttributeString(WsFederationConstants.Attributes.Context, Context);
 
             // <t:Lifetime>
             writer.WriteStartElement(WsTrustConstants.Elements.Lifetime, WsTrustConstants.Namespaces.WsTrust1_3);
