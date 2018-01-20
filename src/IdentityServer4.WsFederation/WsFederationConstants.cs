@@ -35,7 +35,11 @@ namespace IdentityServer4.WsFederation
 
         public static class Attributes 
         {
+            public const string ProtocolSupportEnumeration = "protocolSupportEnumeration";
             public const string Context = "Context";
+            public const string TokenTypesOffered = "TokenTypesOffered";
+            public const string TokenType = "TokenType";
+            public const string Uri = "Uri";
         }
 
         public static class Elements 
@@ -49,13 +53,7 @@ namespace IdentityServer4.WsFederation
 
         public static class Prefixes
         {
-            public const string Wsu = "wsu";
             public const string Xsi = "xsi";
-            public const string Fed = "fed";
-            public const string Wsa = "wsa";
-            public const string Trust = "t";
-            public const string Wst = "wst";
-            public const string Wsp = "wsp";
         }
     }
 }

@@ -31,66 +31,17 @@ namespace IdentityServer4.WsFederation
             var signingKey = (await _keys.GetSigningCredentialsAsync()).Key as X509SecurityKey;
             var cert = signingKey.Certificate;
             var issuer = _contextAccessor.HttpContext.GetIdentityServerIssuerUri();
+            var signingCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.RsaSha256Signature, SecurityAlgorithms.Sha256Digest);
             var config = new WsFederationConfiguration()
             {
                 Issuer = issuer,
                 TokenEndpoint = wsfedEndpoint,
+                SigningCredentials = signingCredentials,
             };
             config.SigningKeys.Add(signingKey);
             config.KeyInfos.Add(new KeyInfo(cert));
 
             return config;
         }
-
-        // private SecurityTokenServiceDescriptor GetTokenServiceDescriptor(string wsfedEndpoint, X509Certificate2 cert)
-        // {
-        //     var tokenService = new SecurityTokenServiceDescriptor();
-        //     tokenService.ServiceDescription = "IdentityServer4 WS-Federation Endpoint";
-        //     tokenService.Keys.Add(GetSigningKeyDescriptor(cert));
-            
-        //     tokenService.PassiveRequestorEndpoints.Add(new EndpointReference(wsfedEndpoint));
-        //     tokenService.SecurityTokenServiceEndpoints.Add(new EndpointReference(wsfedEndpoint));
-
-        //     tokenService.TokenTypesOffered.Add(new Uri("http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV1.1"));
-        //     tokenService.TokenTypesOffered.Add(new Uri("http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0"));
-        //     tokenService.ProtocolsSupported.Add(new Uri("http://docs.oasis-open.org/wsfed/federation/200706"));
-
-        //     return tokenService;
-        // }
-
-        // private ApplicationServiceDescriptor GetApplicationDescriptor(string wsfedEndpoint, X509Certificate2 cert)
-        // {
-        //     var tokenService = new ApplicationServiceDescriptor();
-        //     tokenService.ServiceDescription = "poc";
-        //     tokenService.Keys.Add(GetEncryptionDescriptor(cert));
-        //     tokenService.Keys.Add(GetSigningKeyDescriptor(cert));
-
-        //     tokenService.PassiveRequestorEndpoints.Add(new EndpointReference(wsfedEndpoint));
-        //     tokenService.Endpoints.Add(new EndpointReference(wsfedEndpoint));
-
-        //     tokenService.TokenTypesOffered.Add(new Uri("http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV1.1"));
-        //     tokenService.TokenTypesOffered.Add(new Uri("http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0"));
-        //     tokenService.ProtocolsSupported.Add(new Uri("http://docs.oasis-open.org/wsfed/federation/200706"));
-
-        //     return tokenService;
-        // }
-
-        // private KeyDescriptor GetSigningKeyDescriptor(X509Certificate2 certificate)
-        // {
-        //     var clause = new X509SecurityToken(certificate).CreateKeyIdentifierClause<X509RawDataKeyIdentifierClause>();
-        //     var key = new KeyDescriptor(new SecurityKeyIdentifier(clause));
-        //     key.Use = KeyType.Signing;
-
-        //     return key;
-        // }
-
-        // private KeyDescriptor GetEncryptionDescriptor(X509Certificate2 certificate)
-        // {
-        //     var clause = new X509SecurityToken(certificate).CreateKeyIdentifierClause<X509RawDataKeyIdentifierClause>();
-        //     var key = new KeyDescriptor(new SecurityKeyIdentifier(clause));
-        //     key.Use = KeyType.Encryption;
-
-        //     return key;
-        // }
     }
 }
