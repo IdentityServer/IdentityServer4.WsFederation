@@ -49,5 +49,22 @@ namespace Microsoft.Extensions.DependencyInjection
 
             return builder;
         }
+
+        public static IIdentityServerBuilder AddRelyingPartyStore<T>(this IIdentityServerBuilder builder)
+            where T : class, IRelyingPartyStore
+        {
+            builder.Services.AddTransient<IRelyingPartyStore, T>();
+
+            return builder;
+        }
+
+        public static IIdentityServerBuilder AddRelyingPartyStoreCache<T>(this IIdentityServerBuilder builder)
+            where T : class, IRelyingPartyStore
+        {
+            builder.Services.TryAddTransient(typeof(T));
+            builder.Services.AddTransient<IRelyingPartyStore, CachingRelyingPartyStore<T>>();
+
+            return builder;
+        }
     }
 }
