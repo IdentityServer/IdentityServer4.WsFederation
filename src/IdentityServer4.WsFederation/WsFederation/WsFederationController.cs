@@ -97,7 +97,7 @@ namespace IdentityServer4.WsFederation
                 var returnUrl = Url.Action("Index");
                 returnUrl = returnUrl.AddQueryString(Request.QueryString.Value);
 
-                var loginUrl = _options.UserInteraction.LoginUrl;
+                var loginUrl = Request.PathBase + _options.UserInteraction.LoginUrl;
                 var url = loginUrl.AddQueryString(_options.UserInteraction.LoginReturnUrlParameter, returnUrl);
 
                 return Redirect(url);
