@@ -15,17 +15,6 @@ The following is a brief description of some technical points of interest. Feel 
 ## .NET Support
 The underlying WS-Federation classes use .NET Core.
 
-## Development
-
-At the moment there are no nightly builds available in NuGet format from
-https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/tree/dev repo.
-So you need to clone it manually and put it in the same folder as your IdentityServer4.WsFederation is located e.g.
-
-    .
-    ├── IdentityServer4.WsFederation    # this repo
-    └── Microsoft.IdentityModel         # consider that the name is different then AzureAd/XXX and is referenced 
-                                        # as Microsoft.IdentityModel in csproj
-
 ## WS-Federation endpoint
 The WS-Federation endpoint (metadata, sign-in and out) is implemented via an MVC controller (~/wsfederation).
 This controller handles the WS-Federation protocol requests and redirects the user to the login page if needed.

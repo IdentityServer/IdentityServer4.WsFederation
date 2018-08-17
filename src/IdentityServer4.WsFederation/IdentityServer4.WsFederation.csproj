@@ -8,19 +8,11 @@
   <ItemGroup>
     <PackageReference Include="IdentityServer4" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.0" />
-    <!-- <PackageReference Include="Microsoft.IdentityModel.Logging" Version="5.2.0.408171133-pre" />
-    <PackageReference Include="Microsoft.IdentityModel.Protocols" Version="5.2.0.408171133-pre" />
-    <PackageReference Include="Microsoft.IdentityModel.Protocols.WsFederation" Version="5.2.0.408171133-pre" />
-    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="5.2.0.408171133-pre" />
-    <PackageReference Include="Microsoft.IdentityModel.Tokens.Saml" Version="5.2.0.408171133-pre" />
-    <PackageReference Include="Microsoft.IdentityModel.Xml" Version="5.2.0.408171133-pre" /> -->
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="../../../Microsoft.IdentityModel/src/Microsoft.IdentityModel.Logging/*.csproj" />
-    <ProjectReference Include="../../../Microsoft.IdentityModel/src/Microsoft.IdentityModel.Protocols/*.csproj" />
-    <ProjectReference Include="../../../Microsoft.IdentityModel/src/Microsoft.IdentityModel.Protocols.WsFederation/*.csproj" />
-    <ProjectReference Include="../../../Microsoft.IdentityModel/src/Microsoft.IdentityModel.Tokens/*.csproj" />
-    <ProjectReference Include="../../../Microsoft.IdentityModel/src/Microsoft.IdentityModel.Tokens.Saml/*.csproj" />
-    <ProjectReference Include="../../../Microsoft.IdentityModel/src/Microsoft.IdentityModel.Xml/*.csproj" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.WsFederation" Version="5.2.4" />
+    <PackageReference Include="Microsoft.IdentityModel.Logging" Version="5.2.4" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols" Version="5.2.4" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="5.2.4" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens.Saml" Version="5.2.4" />
+    <PackageReference Include="Microsoft.IdentityModel.Xml" Version="5.2.4" />
   </ItemGroup>
 </Project>
