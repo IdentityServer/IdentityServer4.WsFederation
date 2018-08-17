@@ -90,7 +90,7 @@ namespace IdentityServer4.WsFederation.Tests
             var response = await _client.GetAsync("/wsfederation");
             var message = await response.Content.ReadAsStringAsync();
             Assert.NotEmpty(message);
-            Assert.True(message.StartsWith("<?xml version=\"1.0\" encoding=\"utf-8\"?><EntityDescriptor entityID=\"http://localhost\""));
+            Assert.True(message.StartsWith("<EntityDescriptor entityID=\"http://localhost\""));
         }
 
         [Fact]
@@ -136,7 +136,7 @@ namespace IdentityServer4.WsFederation.Tests
             Assert.False(wreturn.StartsWith("%EF%BB%BF")); //don't start with BOM (Byte Order Mark)
             var wsMessage = new WsFederationMessage 
             {
-                Wresult = Uri.UnescapeDataString(wreturn),
+                Wresult = WebUtility.HtmlDecode(wreturn),
             };
             var tokenString = wsMessage.GetToken();
             var handler = new SamlSecurityTokenHandler();
