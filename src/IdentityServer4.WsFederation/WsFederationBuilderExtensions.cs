@@ -18,11 +18,17 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static IIdentityServerBuilder AddWsFederation(this IIdentityServerBuilder builder)
         {
+            return AddWsFederation<NoRelyingPartyStore>(builder);
+        }
+
+        public static IIdentityServerBuilder AddWsFederation<TStore>(this IIdentityServerBuilder builder) 
+            where TStore : class, IRelyingPartyStore 
+        {
             builder.Services.AddTransient<MetadataResponseGenerator>();
             builder.Services.AddTransient<SignInResponseGenerator>();
             builder.Services.AddTransient<SignInValidator>();
             builder.Services.AddTransient<IReturnUrlParser, WsFederationReturnUrlParser>();
-            builder.Services.TryAddTransient<IRelyingPartyStore, NoRelyingPartyStore>();
+            builder.Services.TryAddTransient<IRelyingPartyStore, TStore>();
 
             builder.Services.AddSingleton(
                 resolver => resolver.GetRequiredService<IOptions<WsFederationOptions>>().Value);
@@ -46,7 +52,6 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             builder.Services.AddSingleton(relyingParties);
             builder.Services.AddSingleton<IRelyingPartyStore, InMemoryRelyingPartyStore>();
-
             return builder;
         }
     }
