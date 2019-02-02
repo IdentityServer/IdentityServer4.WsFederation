@@ -3,8 +3,18 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <AssemblyName>IdentityServer4.WsFederation</AssemblyName>
-    <PackageId>IdentityServer4.WsFederation</PackageId>
+    <PackageId>Kowalew.IdentityServer4.WsFederation</PackageId>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/616b2f/IdentityServer4.WsFederation</PackageProjectUrl>
+    <PackageTags>identityserver;idsrv;wsfed;wsfederation;authentication;auth</PackageTags>
+    <RepositoryUrl>https://github.com/616b2f/IdentityServer4.WsFederation.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
+
+  <ItemGroup>
+      <None Include="../../LICENSE" Pack="true" PackagePath=""/>
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="IdentityServer4" Version="2.1.3" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.1.0" />
