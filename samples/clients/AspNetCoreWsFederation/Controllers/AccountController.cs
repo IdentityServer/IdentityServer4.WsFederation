@@ -1,0 +1,39 @@
+﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
+
+using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.WsFederation;
+using Microsoft.AspNetCore.Authentication.Cookies;
+
+namespace AspNetCoreSecurity.Controllers
+{
+    public class AccountController : Controller
+    {
+        [HttpGet]
+        public IActionResult Login(string returnUrl = null)
+        {
+            if (!Url.IsLocalUrl(returnUrl)) returnUrl = "/";
+
+            var props = new AuthenticationProperties
+            {
+                RedirectUri = returnUrl
+            };
+
+            return Challenge(props, WsFederationDefaults.AuthenticationScheme);
+        }
+
+        public IActionResult LogOut()
+        {
+            return SignOut(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                WsFederationDefaults.AuthenticationScheme);
+        }
+
+        public IActionResult SignOutCleanup(string sid, string iss)
+        {
+            return Redirect("/");
+        }
+    }
+}
