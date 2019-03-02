@@ -55,6 +55,7 @@ namespace IdentityServer4.WsFederation
             var url = Url.Action("Index", "WsFederation", null, Request.Scheme, Request.Host.Value) + Request.QueryString;
             _logger.LogDebug("Start WS-Federation request: {url}", url);
 
+            // user can be null here (this differs from HttpContext.User where the anonymous user is filled in)
             var user = await _userSession.GetUserAsync();
             WsFederationMessage message = WsFederationMessage.FromUri(new Uri(url));
             var isSignin = message.IsSignInMessage;
@@ -74,7 +75,7 @@ namespace IdentityServer4.WsFederation
         
         private async Task<IActionResult> ProcessSignInAsync(WsFederationMessage signin, ClaimsPrincipal user)
         {
-            if (user.Identity.IsAuthenticated)
+            if (user != null && user.Identity.IsAuthenticated)
             {
                 _logger.LogDebug("User in WS-Federation signin request: {subjectId}", user.GetSubjectId());
             }
