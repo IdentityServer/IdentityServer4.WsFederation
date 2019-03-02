@@ -42,9 +42,9 @@ namespace IdentityServer4.WsFederation
                     writer.WriteStartElement(WsTrustConstants.Elements.Lifetime, WsTrustConstants.Namespaces.WsTrust1_3);
 
                     // <wsu:Created></wsu:Created>
-                    writer.WriteElementString(WsUtility.PreferredPrefix, WsUtility.Elements.Created, WsUtility.Namespace, CreatedAt.ToString(SamlConstants.GeneratedDateTimeFormat, DateTimeFormatInfo.InvariantInfo));
+                    writer.WriteElementString(WsUtility.PreferredPrefix, WsUtility.Elements.Created, WsFederationConstants.WsUtility.Namespace, CreatedAt.ToString(SamlConstants.GeneratedDateTimeFormat, DateTimeFormatInfo.InvariantInfo));
                     // <wsu:Expires></wsu:Expires>
-                    writer.WriteElementString(WsUtility.PreferredPrefix, WsUtility.Elements.Expires, WsUtility.Namespace, ExpiresAt.ToString(SamlConstants.GeneratedDateTimeFormat, DateTimeFormatInfo.InvariantInfo));
+                    writer.WriteElementString(WsUtility.PreferredPrefix, WsUtility.Elements.Expires, WsFederationConstants.WsUtility.Namespace, ExpiresAt.ToString(SamlConstants.GeneratedDateTimeFormat, DateTimeFormatInfo.InvariantInfo));
 
                     // </t:Lifetime>
                     writer.WriteEndElement();
