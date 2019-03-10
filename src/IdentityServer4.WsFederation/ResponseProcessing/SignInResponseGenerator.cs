@@ -154,10 +154,7 @@ namespace IdentityServer4.WsFederation
 
             if (result.RelyingParty.EncryptionCertificate != null)
             {
-                var encryptionKey = new X509SecurityKey(result.RelyingParty.EncryptionCertificate);
-                // TODO: check EncryptingCredentials()
-                // SecurityAlgorithms.RsaOaepKeyWrap
-                descriptor.EncryptingCredentials = new EncryptingCredentials(encryptionKey, result.RelyingParty.SignatureAlgorithm, result.RelyingParty.DigestAlgorithm);
+                descriptor.EncryptingCredentials = new X509EncryptingCredentials(result.RelyingParty.EncryptionCertificate);
             }
 
             var handler = CreateTokenHandler(result.RelyingParty.TokenType);

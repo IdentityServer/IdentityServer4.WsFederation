@@ -105,7 +105,7 @@ namespace IdentityServer4.WsFederation.Tests
             var singInUrl = wsMessage.CreateSignInUrl();
             var response = await _client.GetAsync(singInUrl);
             Assert.Equal(HttpStatusCode.Found, response.StatusCode);
-            var expectedLocation = "/account/login?returnUrl=%2Fwsfederation%3Fwtrealm%3Durn%253Aowinrp%26wreply%3Dhttp%253A%252F%252Flocalhost%253A10313%252F%26wa%3Dwsignin1.0";
+            var expectedLocation = "/Account/Login?ReturnUrl=%2Fwsfederation%3Fwtrealm%3Durn%253Aowinrp%26wreply%3Dhttp%253A%252F%252Flocalhost%253A10313%252F%26wa%3Dwsignin1.0";
             Assert.Equal(expectedLocation, response.Headers.Location.OriginalString);
         }
 
