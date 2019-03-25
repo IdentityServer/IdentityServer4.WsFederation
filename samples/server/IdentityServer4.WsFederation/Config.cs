@@ -75,7 +75,7 @@ namespace IdentityServer4.WsFederation
                 {
                     Realm = "urn:sharepoint",
 
-                    TokenType = WsFederationConstants.TokenTypes.Saml2TokenProfile11,
+                    TokenType = WsFederationConstants.TokenTypes.Saml11TokenProfile11,
 
                     // Transform claim types
                     ClaimMapping = new Dictionary<string, string>
