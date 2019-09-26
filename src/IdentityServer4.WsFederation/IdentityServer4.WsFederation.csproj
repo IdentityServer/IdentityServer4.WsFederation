@@ -1,37 +1,28 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
-
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net461</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <AssemblyName>IdentityServer4.WsFederation</AssemblyName>
-    <OutputType>Exe</OutputType>
-    <PackageId>IdentityServer4.WsFederation</PackageId>
+    <PackageId>Kowalew.IdentityServer4.WsFederation</PackageId>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/616b2f/IdentityServer4.WsFederation</PackageProjectUrl>
+    <PackageTags>identityserver;idsrv;wsfed;wsfederation;authentication;auth</PackageTags>
+    <RepositoryUrl>https://github.com/616b2f/IdentityServer4.WsFederation.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="App.config" />
-    <None Update="wwwroot\**\*">
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </None>
+      <None Include="../../LICENSE" Pack="true" PackagePath=""/>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore" Version="2.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.1" />
-    <PackageReference Include="IdentityServer4" Version="2.0.4" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="2.0.1" />
-    <PackageReference Include="Serilog" Version="2.5.0" />
-    <PackageReference Include="Serilog.Extensions.Logging" Version="2.0.2" />
-    <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
-    
+    <PackageReference Include="IdentityServer4" Version="2.4.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.1.3" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.WsFederation" Version="5.4.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Logging" Version="5.4.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols" Version="5.4.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="5.4.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens.Saml" Version="5.4.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Xml" Version="5.4.0" />
   </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
-    <Reference Include="System.IdentityModel" />
-    <Reference Include="System.IdentityModel.Services" />
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
-
 </Project>

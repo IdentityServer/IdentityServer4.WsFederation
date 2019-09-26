@@ -1,5 +1,5 @@
 # IdentityServer4.WsFederation
-**Sample** for implementing WS-Federation IdP support for IdentityServer4
+**Sample** for implementing WS-Federation IdP support for IdentityServer4 with .NET core.
 
 ## Overview
 IdentityServer4 is designed to be extensible with custom protocol endpoints.
@@ -13,7 +13,7 @@ are not natively supported by IdentityServer4).**
 The following is a brief description of some technical points of interest. Feel free to amend this document if more details are needed.
 
 ## .NET Support
-The underlying WS-Federation classes used in this repo are only part of the "desktop" .NET Framework and are not included in .NET Core.
+The underlying WS-Federation classes use .NET Core.
 
 ## WS-Federation endpoint
 The WS-Federation endpoint (metadata, sign-in and out) is implemented via an MVC controller (~/wsfederation).
